@@ -34,6 +34,7 @@ class SideNavbar(QWidget):
         self.btnMenu = QPushButton(self)
         self.btnHome = QPushButton(self)
         self.btnStudents = QPushButton(self)
+        self.btnNotification = QPushButton(self)
         self.btnSettings = QPushButton(self)
 
         # Widget Properties
@@ -55,6 +56,12 @@ class SideNavbar(QWidget):
         self.btnStudents.setToolTip("Students")
         self.btnStudents.setCursor(Qt.PointingHandCursor)
 
+        self.btnNotification.setIcon(QIcon('img/ic_notification.png'))
+        self.btnNotification.setMinimumHeight(10)
+        self.btnNotification.setStyleSheet("background-color: rgba(255, 255, 255, 0);")
+        self.btnNotification.setToolTip("Notifications")
+        self.btnNotification.setCursor(Qt.PointingHandCursor)
+
         self.btnSettings.setIcon(QIcon('img/settings.png'))
         self.btnSettings.setStyleSheet("background-color: rgba(255, 255, 255, 0);")
         self.btnSettings.setMinimumHeight(10)
@@ -65,6 +72,7 @@ class SideNavbar(QWidget):
         vbox.addWidget(self.btnMenu)
         vbox.addWidget(self.btnHome)
         vbox.addWidget(self.btnStudents)
+        vbox.addWidget(self.btnNotification)
         vbox.addWidget(self.btnSettings)
         vbox.insertStretch(3, 100)
         vbox.setSpacing(0)
