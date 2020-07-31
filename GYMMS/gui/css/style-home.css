@@ -1,0 +1,14 @@
+@font-face {
+  font-family: "RobotoRegular";
+  src: url("../vendor/fonts/Roboto-Regular.ttf") format("truetype");
+}
+
+@font-face {
+  font-family: "RobotoThin";
+  src: url("../vendor/fonts/Roboto-Thin.ttf") format("truetype");
+}
+
+/* body {
+  font-family: "RobotoThin", sans-serif;
+  font-size: 48px;
+} */
