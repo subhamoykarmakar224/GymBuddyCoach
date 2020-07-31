@@ -8,7 +8,16 @@
   src: url("../vendor/fonts/Roboto-Thin.ttf") format("truetype");
 }
 
-/* body {
-  font-family: "RobotoThin", sans-serif;
+body {
+  font-family: "RobotoRegular", sans-serif;
   font-size: 48px;
-} */
+}
+
+/*
+
+  black: #1d1b1b;
+  tomato-red: #ec4d37;
+  orange: #ec8b5e;
+  white: #ffffff;
+
+*/

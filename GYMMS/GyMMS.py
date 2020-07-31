@@ -13,4 +13,4 @@ def generate_name_initials(name):
     return initials
 
 
-eel.start('index.html', size=(1000, 600))
+eel.start('index.html', size=(1280, 720))
