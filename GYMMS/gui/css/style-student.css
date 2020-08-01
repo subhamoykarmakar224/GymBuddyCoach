@@ -18,6 +18,7 @@ COLORS:-
 
 .div-student-container {
   margin-bottom: 35px;
+  margin-top: 25px;
 }
 
 .floating-button-add-student {
@@ -39,4 +40,31 @@ COLORS:-
 
 .div-container-student-list {
   background-color: #323841;
+}
+
+/* Students List Table */
+#all-students-list thead{
+  color: #43d9b4;
+}
+
+#all-students-list tbody tr{
+  color: rgba(255, 255, 255, 0.7);
+  transition: all 0.5s 0.01s;
+  font-size: 12px;
+}
+
+#all-students-list tbody tr:hover{
+  color: orange;
+  cursor: pointer;
+}
+
+/* Search Widget */
+#search_widget img{
+  height: 30px !important;
+  width: 30px !important;
+  margin-top: 3px;
+}
+
+#search_term {
+  font-size: 15px;
 }

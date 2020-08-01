@@ -52,7 +52,7 @@ sidenav {
 /* SIDE BAR */
 #ico-menu {
   margin: 0;
-  position: absolute;
+  position: fixed;
   top: 5%;
   left: 3%;
 }
@@ -71,20 +71,4 @@ sidenav {
   margin-right: 100px;
   margin-top: 36px;
   height: 600px;
-}
-
-
-/* Students List Table */
-#all-students-list thead{
-  color: #43d9b4;
-}
-
-#all-students-list tbody tr{
-  color: rgba(255, 255, 255, 0.7);
-  transition: all 0.4s 0.01s;
-}
-
-#all-students-list tbody tr:hover{
-  color: red;
-  cursor: pointer;
 }

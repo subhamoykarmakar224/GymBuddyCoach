@@ -1,0 +1,70 @@
+@font-face {
+font-family: "RobotoRegular";
+src: url("../vendor/fonts/Roboto-Regular.ttf") format("truetype");
+}
+
+@font-face {
+font-family: "RobotoThin";
+src: url("../vendor/fonts/Roboto-Thin.ttf") format("truetype");
+}
+
+/*
+COLORS:-
+bg-dark: #222831;
+bg-light: #323841;
+helo-blue: #43d9b4;
+helo-blue-dark: #35AD90
+twitter-blue: #30c8e6;
+*/
+
+body { 
+background-color: #222831;
+}
+
+.div-container-preloader {
+    position: fixed;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    margin: auto;
+    max-width: 100%;
+    max-height: 100%;
+}
+
+.img-container-logo {
+    position: fixed;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    margin: auto;
+    margin-top: 70px;
+    max-width: 100%;
+    max-height: 100%;
+}
+
+#p-container-sub {
+    color: rgba(255, 255, 255, 0.8);
+    position: fixed;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    margin: auto;
+    margin-top: 180px;
+    max-width: 100%;
+    max-height: 100%;
+}
+
+#p-container-ack {
+    color: rgba(255, 255, 255, 0.7);
+    position: fixed;
+    left: 0;
+    right: 0;
+    top: 550px;
+    bottom: 0;
+    margin: auto;
+    max-width: 100%;
+    max-height: 100%;
+}

@@ -1,8 +1,13 @@
 $(function () {
+  // Default page init
   $.get('student.html', function (response) {
     $('.div-container').html(response);
   });
+
+  // Sidenav init
   $(".sidenav").sidenav();
+
+  // Navigation Control
   $(".menu-item-selected").on("click", function () {
     $(".menu-item-selected").removeClass("active");
     $(this).addClass("active");
@@ -33,4 +38,5 @@ $(function () {
       });
     }
   });
+
 });
