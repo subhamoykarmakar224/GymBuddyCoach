@@ -8,16 +8,83 @@
   src: url("../vendor/fonts/Roboto-Thin.ttf") format("truetype");
 }
 
-body {
-  font-family: "RobotoRegular", sans-serif;
-  font-size: 48px;
+/*
+COLORS:-
+  bg-dark: #222831;
+  bg-light: #323841;
+  helo-blue: #43d9b4;
+  helo-blue-dark: #35AD90
+  twitter-blue: #30c8e6;
+*/
+
+body { 
+  background-color: #222831;
 }
 
-/*
+/* SCROLL BAR */
+::-webkit-scrollbar {
+  width: 8px;
+}
 
-  black: #1d1b1b;
-  tomato-red: #ec4d37;
-  orange: #ec8b5e;
-  white: #ffffff;
+::-webkit-scrollbar-track {
+  background: #222831; 
+}
 
-*/
+::-webkit-scrollbar-track:hover {
+  background: #323841; 
+}
+
+::-webkit-scrollbar-thumb {
+  background: #43d9b4; 
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #35AD90; 
+}
+
+/* SIDENAV */
+sidenav {
+  font-family: "RobotoRegular", sans-serif;
+  font-size: 48px;
+  background-color: #222831;
+}
+
+/* SIDE BAR */
+#ico-menu {
+  margin: 0;
+  position: absolute;
+  top: 5%;
+  left: 3%;
+}
+
+.no-shadows {
+  box-shadow: none!important;
+}
+
+.custom-text {
+  color: rgba(0, 0, 0, 1);
+}
+
+.div-container {
+  background-color: #222831;
+  margin-left: 100px;
+  margin-right: 100px;
+  margin-top: 36px;
+  height: 600px;
+}
+
+
+/* Students List Table */
+#all-students-list thead{
+  color: #43d9b4;
+}
+
+#all-students-list tbody tr{
+  color: rgba(255, 255, 255, 0.7);
+  transition: all 0.4s 0.01s;
+}
+
+#all-students-list tbody tr:hover{
+  color: red;
+  cursor: pointer;
+}

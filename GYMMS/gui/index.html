@@ -1,20 +1,55 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8"/>
-  <title>Hello World</title>
+  <meta charset="UTF-8" />
+  <title>Gym Management System</title>
+  <link rel="icon" type="image/png" href="./src/icons/small_logo.jpg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
   <!-- Vendor : JS -->
   <script type="text/javascript" src="./vendor/js/jquery-3.5.1.min.js"></script>
+  <script type="text/javascript" src="./vendor/js/materialize.js"></script>
+
   <!-- Vendor: CSS -->
+  <link type="text/css" rel="stylesheet" href="./vendor/css/materialize.css" media="screen,projection" />
 
   <!-- Custom: JS -->
   <script type="text/javascript" src="/eel.js"></script>
   <script type="text/javascript" src="./js/app-home.js"></script>
 
   <!-- Custom: CSS -->
-  <link type="text/css" rel="stylesheet" href="./css/style-home.css" media="screen,projection"/>
+  <link type="text/css" rel="stylesheet" href="./css/style-home.css" media="screen,projection" />
 </head>
+
 <body>
-  
+  <!-- MENU ICON -->
+  <a href="#" data-target="slide-out" class="sidenav-trigger" id="ico-menu">
+    <img src="./src/icons/ic_menu.png" width="28" />
+  </a>
+
+  <!-- SIDENAV -->
+  <ul id="slide-out" class="sidenav">
+    <li>
+      <div class="user-view">
+        <div class="background">
+          <img src="./src/bg1.jpg" width="300">
+        </div>
+        <a href="#user"><img src="./src/icons/ic_logo_white.png" width="100"></a>
+        <a href="#name"><span class="custom-text name white-text">Gym Management System</span></a>
+        <a href="#email"><span class="custom-text email white-text">gymms.sk@gmail.com</span></a>
+      </div>
+    </li>
+    <li class="menu-item-selected"><a href="#" class="waves-effect">Home</a></li>
+    <li class="menu-item-selected active"><a href="#" class="waves-effect"><span>Students</span></a></li>
+    <li class="menu-item-selected"><a href="#" class="waves-effect"><span>Notification</span></a></li>
+    <li class="menu-item-selected"><a href="#" class="waves-effect"><span>Settings</span></a></li>
+    <li class="menu-item-selected"><a href="#" class="waves-effect"><span>Version Control</span></a></li>
+    <li class="menu-item-selected"><a href="#" class="waves-effect"><span>Contact Us</span></a></li>
+  </ul>
+
+  <!-- DYNAMIC CONTAINER -->
+  <div class="div-container"></div>
 </body>
+
 </html>

@@ -1,4 +1,5 @@
 import eel
+import ControllerStudent as students
 
 
 eel.init("GUI")
@@ -11,6 +12,11 @@ def generate_name_initials(name):
     for n in name:
         initials += n[0] + ". "
     return initials
+
+
+@eel.expose
+def getAllStudents():
+    return students.getAllStudentsList()
 
 
 eel.start('index.html', size=(1280, 720))
