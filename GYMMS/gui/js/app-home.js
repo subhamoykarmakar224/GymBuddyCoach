@@ -1,4 +1,6 @@
 $(function () {
+  $('.modal').modal();
+
   // Default page init
   $.get('student.html', function (response) {
     $('.div-container').html(response);
@@ -6,6 +8,8 @@ $(function () {
 
   // Sidenav init
   $(".sidenav").sidenav();
+  $('.fixed-action-btn').floatingActionButton();
+
 
   // Navigation Control
   $(".menu-item-selected").on("click", function () {
@@ -32,11 +36,24 @@ $(function () {
       $.get('contactus.html', function (response) {
         $('.div-container').html(response);
       });
+    } else if (option == "Logout") {
+      $('#modal-logout').modal('open');
     } else {
       $.get('home.html', function (response) {
         $('.div-container').html(response);
       });
     }
+  });
+
+  $("#btn-action-logout").on('click', function () {
+    eel.logoutCurrentUser()(function () {
+      setTimeout(
+        function () {
+          window.location = 'launchscreen.html';
+        },
+        1
+      );
+    });
   });
 
 });
