@@ -31,7 +31,7 @@ $(function () {
                 var URL = "index.html"
                 setTimeout(
                     function () {
-                        window.location = URL;
+                        window.location.replace(URL);
                     },
                     1
                 );

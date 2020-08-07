@@ -6,7 +6,9 @@ allotedtime varchar(200),
 membershipvalidity varchar(200),
 phone varchar(100),
 studentage varchar(10),
-studentname varchar(100)
+studentname varchar(100),
+regstatus varchar(100),
+dueamount varchar(100) default "0"
 );
 
 create table Notification(

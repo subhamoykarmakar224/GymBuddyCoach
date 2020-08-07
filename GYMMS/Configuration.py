@@ -11,6 +11,7 @@ KEY_STUDENTS_MEMBERSHIP = 'membershipvalidity'
 KEY_STUDENTS_PHONE = 'phone'
 KEY_STUDENTS_AGE = 'studentage'
 KEY_STUDENTS_NAME = 'studentname'
+KEY_STUDENTS_REG_STATUS = 'regstatus'
 
 TABLE_NOTIFICATION = 'Notification'
 KEY_NOTIFICATION_NID = 'notifId'

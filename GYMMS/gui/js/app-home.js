@@ -49,7 +49,7 @@ $(function () {
     eel.logoutCurrentUser()(function () {
       setTimeout(
         function () {
-          window.location = 'launchscreen.html';
+          window.location.replace('adminsignin.html');
         },
         1
       );

@@ -1,0 +1,4 @@
+LoginScreenFB.getGymMetaData() - GymAdmin
+----------------------------------------------
+{'adminName': 'Kanchan Basu', 'gymId': 'BodyShapersGym-2932', 'gymName': 'Body Shapers Gymnasium', 'loginstatus': '0', 'passwd': '1234', 'phone': '+919830616135', 'username': 'kd', 'validity': '31-08-2020'}
+

@@ -2,6 +2,11 @@ import eel
 import ControllerLaunchScreen as launch
 import ControllerSignin as signin
 import ControllerStudent as students
+import easygui
+import tkinter as tk
+import tkinter.ttk as ttk
+from tkinter import filedialog
+from tkfilebrowser import askopendirname, askopenfilenames, asksaveasfilename
 
 
 eel.init("GUI")
@@ -36,6 +41,21 @@ def getAllStudents():
 def getFilteredStudentResult(queryText):
     return students.getFilteredResult(queryText)
 
+
+@eel.expose
+def saveImage(imgSrc, fileName):
+    path = easygui.fileopenbox()
+    print(path)
+
+    # root = tk.Tk()
+    # # style = ttk.Style(root)
+    # # style.theme_use("clam")
+    # root.minsize()
+    # rep = filedialog.askopenfilenames(parent=root, initialdir='/', initialfile='tmp',
+    #                                   filetypes=[("PNG", "*.png"), ("JPEG", "*.jpg"), ("All files", "*")])
+    # print(rep)
+    # root.destroy()
+    #
 
 # LOGOUT TAB
 @eel.expose
