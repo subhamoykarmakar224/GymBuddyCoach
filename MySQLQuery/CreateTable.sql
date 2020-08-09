@@ -21,11 +21,33 @@ msg text
 
 create table GymAdmin(
 gymId varchar(100) primary key,
+memberrole varchar(100),
 gymName varchar(100),
 adminName varchar(100),
 phone varchar(100),
 validity varchar(100),
 username varchar(100),
 passwd text,
-loginstatus int 
+loginstatus int
 );
+
+create table localaction(
+actiontime datetime,
+module varchar(100),
+action varchar(100),
+status int
+);
+
+create table softwareflags(
+flagname varchar(100),
+status int
+);
+
+
+drop table if exists GymAdmin;
+drop table if exists Students;
+drop table if exists Notification;
+drop table if exists localaction;
+
+
+

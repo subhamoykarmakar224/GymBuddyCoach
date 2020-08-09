@@ -1,0 +1,22 @@
+FB = 
+[
+{
+'SID': 'ID-2932-1', 
+'allotedtime': '12:15 PM to 1:15 PM', 
+'membershipvalidity': '31-07-2020', 
+'phone': '+919432743720', 
+'studentage': '28', 
+'studentname': 'Subhamoy Karmakar'
+}, 
+{'SID': 'ID-2932-2', 'allotedtime': '12:15 PM to 1:15 PM', 'membershipvalidity': '31-08-2020', 'phone': '+919878767654', 'studentage': '30', 'studentname': 'Karan Arjun'}, 
+{'SID': 'ID-2932-3', 'allotedtime': '4:15 PM to 5:15 PM', 'membershipvalidity': '31-10-2020', 'phone': '+919009878789', 'studentage': '20', 'studentname': 'Vivek Roy'}
+]
+-----------------------------------------------------------------------------------------
+SQL = 
+[
+('ID-2932-1', '4:15 PM to 6:15 PM', '31-10-2020', '+919432743720', '28', 'Subhamoy Karmakar', '1', '0'), 
+('ID-2932-2', '2:15 PM to 3:15 PM', '31-10-2020', '+919009878777', '20', 'Suman Halder', '1', '0'), 
+('ID-2932-3', '4:15 PM to 5:15 PM', '31-10-2020', '+919009878789', '20', 'Vivek Roy', '1', '0')
+]
+
+-----------------------------------------------------------------------------------------

@@ -1,13 +1,18 @@
-from PyQt4.QtGui import *
-from PyQt4.QtCore import *
+from PyQt5.QtWidgets import *
+from PyQt5.QtGui import *
+from PyQt5.QtCore import *
 import Configuration as cfg
-import requests
+import requests, time, os
+from CustomMessageBox import *
+import sync.FBAutoSync as FBAutoSync
+import sync.SQLAutoSync as SQLAutoSync
+import sync.CompareStudentsData as CompareStudentsData
 
 
 class AutoSync(QDialog):
-    def __init__(self, phone):
+    def __init__(self):
         super(AutoSync, self).__init__()
-        self.phone = phone
+        self.phone = ''
         self.done = False
         self.setWindowIcon(QIcon(cfg.TITLEBAR_ICON_URL))
         self.setWindowTitle("Syncing Data...")
@@ -44,7 +49,7 @@ class AutoSync(QDialog):
         # Add Main Widget to Parent Layout
         self.setLayout(self.mainLayout)
 
-        self.exec_()
+        self.startSync()
 
     def setLayoutProperties(self):
         pass
@@ -76,9 +81,8 @@ class AutoSync(QDialog):
         if event.key() == Qt.Key_Escape:
             if not self.done:
                 event.ignore()
-                msg = QMessageBox()
+                msg = CustomInfoMessageBox()
                 msg.setIcon(QMessageBox.Information)
-                msg.setWindowIcon(QIcon(cfg.TITLEBAR_ICON_URL))
                 msg.setWindowTitle("Error")
                 msg.setText("Please wait while we index your database.")
                 msg.exec_()
@@ -96,4 +100,88 @@ class AutoSync(QDialog):
         return res.status_code
 
     def startSync(self):
-        pass
+        if self.connectedToInternet() != 200:
+
+            msg = QMessageBox()
+            msg.setIcon(QMessageBox.Information)
+            msg.setWindowIcon(QIcon(cfg.TITLEBAR_ICON_URL))
+            msg.setWindowTitle("Error")
+            msg.setText("Please connect to the internet and try again!")
+            msg.exec_()
+
+        self.startProgress()
+
+    def startProgress(self):
+        self.thread = ThreadProgressBarShow()
+        self.thread.change_val.connect(self.setProgressValue)
+        self.thread.thread_done.connect(self.setDone)
+        self.thread.lbl_msg.connect(self.setLabelMsg)
+        self.thread.start()
+
+    def setProgressValue(self, val):
+        self.progress.setValue(val)
+
+    def setDone(self, done):
+        self.done = done
+        if done:
+            self.done = True
+            # msg = CustomInfoMessageBox()
+            # msg.setWindowTitle('Done')
+            # msg.setText('Your sync process is complete!')
+            # msg.exec_()
+            self.close()
+
+    def setLabelMsg(self, msg):
+        self.lblInProgress.setText(msg)
+
+
+class ThreadProgressBarShow(QThread):
+    change_val = pyqtSignal(int)
+    thread_done = pyqtSignal(bool)
+    lbl_msg = pyqtSignal(str)
+
+    fb = FBAutoSync.FBAutoSync()
+    sql = SQLAutoSync.SQLAutoSync()
+
+    def run(self):
+        cnt = 0
+        self.lbl_msg.emit("Syncing Admin table...")
+        # self.checkGymAdminData()
+        self.change_val.emit(30)
+        self.lbl_msg.emit("Syncing Students table...")
+        self.checkStudentsData()
+        self.change_val.emit(60)
+        self.lbl_msg.emit("Syncing Notifications table...")
+        # self.checkNotificationData()
+        self.change_val.emit(90)
+        self.lbl_msg.emit("Done.")
+        self.change_val.emit(100)
+        self.thread_done.emit(True)
+
+    def checkGymAdminData(self):
+        if not os.path.exists(cfg.TMP_FILE_URL):
+            return False
+
+        f = open(cfg.TMP_FILE_URL, "r")
+        ph = f.read().strip("\n")
+
+    def checkStudentsData(self):
+        if not os.path.exists(cfg.TMP_FILE_URL):
+            return False
+
+        f = open(cfg.TMP_FILE_URL, "r")
+        ph = f.read().strip("\n")
+
+        gymId = self.sql.getGymID()
+
+        dataFBStudents = self.fb.getAllStudentsData(gymId)
+        compareStudents = CompareStudentsData.CompareStudentsData(dataFBStudents)
+        compareStudents.compareData()
+
+    def checkNotificationData(self):
+        if not os.path.exists(cfg.TMP_FILE_URL):
+            return False
+
+        f = open(cfg.TMP_FILE_URL, "r")
+        ph = f.read().strip("\n")
+

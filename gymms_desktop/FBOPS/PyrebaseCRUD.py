@@ -131,11 +131,12 @@ def advancedSelectData():
 def demoInsertGymAdmin():
     data = {
         'adminName': "Modi",
-        'gymId': "DemoGym-1234",
-        'gymName': "DemoGym by Modi",
+        'gymId': "BodyShapersGym-2932",
+        'memberrole': 'admin',
+        'gymName': "Body Shapers Gym",
         'loginstatus': "0",
         'passwd': "1234",
-        'phone': "+919878767655",
+        'phone': "+919876543210",
         'username': "mods",
         'validity': "31-09-2020"
     }
@@ -145,14 +146,22 @@ def demoInsertGymAdmin():
     db.child("GymAdmin").child(data["gymId"]).set(data)
 
 
+def updateGymAdmin():
+    db.child("GymAdmin") \
+        .child("BodyShapersGym-2932")\
+        .update({"phone": "+919432743720"})
+
+
 def demoInsertStudents():
     data = {
-        "SID": "ID-2932-3",
-        "studentname": "Vivek Roy",
-        "studentage": "20",
-        "allotedtime": "4:15 PM to 5:15 PM",
-        "phone": "+919009878789",
-        "membershipvalidity": "31-10-2020"
+        "SID": "ID-2932-1",
+        "studentname": "Subhamoy Karmakar",
+        "studentage": "28",
+        "allotedtime": "4:15 PM to 6:15 PM",
+        "phone": "+919432743720",
+        "membershipvalidity": "31-10-2020",
+        "regstatus": "1",
+        "dueamount": "0"
     }
 
     # Insert Data with own key
@@ -161,16 +170,5 @@ def demoInsertStudents():
 
 
 if __name__ == '__main__':
-    # demoInsertGymAdmin()
-    demoInsertStudents()
-    # ------------------------------------------------------------
-    # newUser  = input("Are you new user[y/n] : ")
-    # if newUser == 'y' or newUser == 'Y':
-    #     signUp()
-    # else:
-    #     login()
-    # insertData()
-    # updateDate()
-    # deleteData()
-    # selectData()
-    # advancedSelectData()
+    pass
+    # demoInsertStudents()

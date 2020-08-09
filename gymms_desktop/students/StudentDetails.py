@@ -6,9 +6,12 @@ from Helper import *
 import students.SQLTabStudents as SQLTabStudents
 import students.FBTabStudents as FBTabStudents
 
-class TabStudent(QWidget):
-    def __init__(self):
-        super(TabStudent, self).__init__()
+
+class StudentDetails(QWidget):
+    def __init__(self, student):
+        super(StudentDetails, self).__init__()
+
+        self.student = student
 
         self.sql = SQLTabStudents.SQLTabStudents()
         self.fb = FBTabStudents.FBTabStudents()
@@ -27,13 +30,15 @@ class TabStudent(QWidget):
         self.setSubLayoutProperties()
 
         # Widgets
-        self.lblStudents = QLabel("Students List")
+        self.lblStudents = QLabel("Students")
         self.lineEdtSearch = QLineEdit()
         self.lblClearIcon = QLabel()
         self.pixMapICClear = QPixmap(cfg.IC_DELETE)
         self.table = QTableWidget()
+
         self.btnNewStudents = QLabel()
         self.btnEditStudents = QLabel()
+        self.btnSubscription = QLabel()
         self.btnDeleteStudents = QLabel()
         self.btnSendNotifStudents = QLabel()
 
@@ -48,7 +53,8 @@ class TabStudent(QWidget):
         self.layoutSearch.addWidget(self.lblClearIcon)
 
         self.layoutButtons.addWidget(self.btnNewStudents)
-        self.layoutButtons.addWidget(self.btnEditStudents)
+        # self.layoutButtons.addWidget(self.btnEditStudents)
+        self.layoutButtons.addWidget(self.btnSubscription)
         self.layoutButtons.addWidget(self.btnSendNotifStudents)
         self.layoutButtons.addWidget(self.btnDeleteStudents)
 
@@ -65,8 +71,8 @@ class TabStudent(QWidget):
         pass
 
     def setSubLayoutProperties(self):
-        self.layoutButtons.addStretch(0)
-        # self.layoutButtons.setAlignment(Qt.AlignTop)
+        # self.layoutButtons.addStretch(0)
+        self.layoutButtons.setAlignment(Qt.AlignTop)
 
     def setWidgetProperties(self):
         # Search LineEdit
@@ -101,6 +107,11 @@ class TabStudent(QWidget):
         self.btnEditStudents.setToolTip("Edit Selected Student")
         self.btnEditStudents.setAlignment(Qt.AlignTop)
 
+        self.btnSubscription.setPixmap(getPixMap(cfg.IC_SUBSCRIPTION))
+        self.btnSubscription.setCursor(Qt.PointingHandCursor)
+        self.btnSubscription.setToolTip("Extend Subscription")
+        self.btnSubscription.setAlignment(Qt.AlignTop)
+
         self.btnDeleteStudents.setPixmap(getPixMap(cfg.IC_TRASH))
         self.btnDeleteStudents.setCursor(Qt.PointingHandCursor)
         self.btnDeleteStudents.setToolTip("Delete Student")
@@ -117,6 +128,7 @@ class TabStudent(QWidget):
     def setListeners(self):
         self.btnNewStudents.mousePressEvent = self.AddNewStudent
         self.btnEditStudents.mousePressEvent = self.EditStudent
+        self.btnEditStudents.mousePressEvent = self.EditSubscription
         self.btnDeleteStudents.mousePressEvent = self.DeleteStudent
         self.btnSendNotifStudents.mousePressEvent = self.SendNotificationToStudent
 
@@ -138,6 +150,9 @@ class TabStudent(QWidget):
 
     def EditStudent(self, e):
         print("Edit Student")
+
+    def EditSubscription(self, e):
+        print("Edit Subscription")
 
     def DeleteStudent(self, e):
         print("Delete Student")
