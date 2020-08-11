@@ -170,5 +170,5 @@ def demoInsertStudents():
 
 
 if __name__ == '__main__':
-    pass
-    # demoInsertStudents()
+    # pass
+    demoInsertStudents()

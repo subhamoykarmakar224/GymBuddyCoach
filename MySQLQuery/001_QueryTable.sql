@@ -1,5 +1,5 @@
 describe students;
-select * from students;
+
 
 describe notification;
 
@@ -13,6 +13,12 @@ delete from gymadmin;
 SET SQL_SAFE_UPDATES = 0;
 select gymId, gymName, adminName, username from GymAdmin where phone='+919876543210';
 
+select * from gymadmin;
+select * from localaction;
+select * from notification;
 select * from softwareflags;
+select * from students;
 
-delete from softwareflags;
+delete from students;
+
+update softwareflags set status=0 where flagname="firstinstallstudent";

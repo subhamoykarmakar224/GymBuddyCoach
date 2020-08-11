@@ -103,6 +103,8 @@ FB_KEY_ADMIN_STATUS = 'loginstatus'
 
 # FILE URL
 TMP_FILE_URL = "./tmp/tmp.txt"
+TMP_FILE_DIR = "./tmp/"
+TMP_FILE_PHOTO_DIR = "./tmp/photo/"
 SPLASH_SCREEN_URL = './src/splash.jpg'
 TITLEBAR_ICON_URL = './src/icons/small_logo.jpg'
 
@@ -117,3 +119,4 @@ IC_TRASH = './src/icons/ic_delete_trash.png'
 IC_MESSAGE = './src/icons/ic_message.png'
 IC_NOTIFICATION = './src/icons/ic_notification.png'
 IC_ADD_NOTIFICATION = './src/icons/ic_add_notification.png'
+IC_ADD_PHOTO = './src/icons/ic_add_photo.png'

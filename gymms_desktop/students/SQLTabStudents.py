@@ -61,6 +61,9 @@ class SQLTabStudents():
             return -1
         return 0
 
+    def deleteStudent(self, id):
+        q = 'delete from ' + cfg.TABLE_STUDENTS + ' where ' + cfg.KEY_STUDENTS_SID + '=' + str(id)
+
     def getLocalActionStudentModule(self):
         query = 'select ' + cfg.KEY_ACTION_ACTION + ' from ' + cfg.TABLE_ACTION + ' where module="student" and status=0'
         res = 0
@@ -71,3 +74,14 @@ class SQLTabStudents():
             print("SQLAutoSync.getAdminGymId() :: ERROR :: " + str(e))
 
         return res
+
+    def getGymId(self):
+        query = 'select ' + cfg.KEY_ADMIN_ID + ' from ' + cfg.TABLE_ADMIN
+        res = ""
+        try:
+            self.cur.execute(query)
+            res = self.cur.fetchone()
+        except Exception as e:
+            print("SQLAutoSync.getAdminGymId() :: ERROR :: " + str(e))
+
+        return res[0]
