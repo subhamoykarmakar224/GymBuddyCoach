@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
-import requests
+import requests, os
 
 import Configuration as cfg
 from Helper import *
@@ -9,6 +9,7 @@ from CustomMessageBox import *
 import students.SQLTabStudents as SQLTabStudents
 import students.FBTabStudents as FBTabStudents
 import students.StudentDetails as StudentDetails
+import students.StudentDetailsEdit as StudentDetailsEdit
 
 
 class TabStudent(QWidget):
@@ -134,7 +135,6 @@ class TabStudent(QWidget):
         self.btnSendNotifStudents.mousePressEvent = self.SendNotificationToStudent
 
     def refreshStudentsTable(self):
-        print("Load Table...")
         sqllocal = SQLTabStudents.SQLTabStudents()
         students = sqllocal.getAllStudents()
         self.table.clearContents()
@@ -159,6 +159,15 @@ class TabStudent(QWidget):
 
     # Edit Student
     def EditStudent(self, e):
+        ids = self.getCheckedRowIDs()
+        if ids.__len__() != 1:
+            msg = CustomInfoMessageBox()
+            msg.setWindowTitle("Alert!")
+            msg.setText('You can only update single student data at a time. Please select a single student '
+                        'and try again')
+            msg.exec_()
+            return
+
         if self.isConnectedToInternet() != 200:
             msg = CustomInfoMessageBox()
             msg.setWindowTitle("Alert!")
@@ -172,16 +181,10 @@ class TabStudent(QWidget):
             if r == QMessageBox.No:
                 return
 
-        ids = self.getCheckedRowIDs()
-        if ids.__len__() != 1:
-            msg = CustomInfoMessageBox()
-            msg.setWindowTitle("Alert!")
-            msg.setText('You can only update single student data at a time. Please select a single student '
-                        'and try again')
-            msg.exec_()
-            return
-
-        print("Edit Student")
+        editstudent = StudentDetailsEdit.StudentDetailsEdit(ids[0][0])
+        editstudent.exec_()
+        if editstudent.allOkStatus:
+            self.refreshStudentsTable()
 
     # Edit Subscription
     def EditSubscription(self, e):
@@ -213,6 +216,12 @@ class TabStudent(QWidget):
     def DeleteStudent(self, e):
         ids = self.getCheckedRowIDs()
         if ids.__len__() <= 0:
+            msg = CustomInfoMessageBox()
+            msg.setWindowTitle("Alert!")
+            msg.setText('You will have to select at least one student to perform delete action. You can double click '
+                        'on a row or, check the checkbox on the left most column in the table to select the '
+                        'student(s).')
+            msg.exec_()
             return
 
         if self.isConnectedToInternet() != 200:
@@ -228,11 +237,41 @@ class TabStudent(QWidget):
             if r == QMessageBox.No:
                 return
 
+        msg = CustomInfoMessageBox()
+        msg.setWindowTitle("Alert!")
+        msg.setText('You are about to delete the student from your database. Are you sure you want to proceed?')
+        msg.setDetailedText('If your perform this action the information about this student will be lost forever. '
+                            'Instead it is advised, you can keep his information in your database but change the '
+                            '\"registration status\" field to either-\n1. Disabled or, \n2. Blocked')
+        msg.addButton(QMessageBox.Yes)
+        msg.addButton(QMessageBox.No)
+        msg.setDefaultButton(QMessageBox.No)
+        r = msg.exec_()
+        if r == QMessageBox.No:
+            return
+
+        sqllocal = SQLTabStudents.SQLTabStudents()
+
         # [('ID-2932-0f23a6df', 'Subhamoy Karmakar')]
         for tmpID in ids:
-            print(tmpID[0])
-            print(tmpID[1])
-            print("========================")
+            sqllocal.deleteStudent(tmpID[0])
+            if os.path.exists(cfg.TMP_FILE_PHOTO_DIR + tmpID[0] + '.png'):
+                os.remove(cfg.TMP_FILE_PHOTO_DIR + tmpID[0] + '.png')
+            elif os.path.exists(cfg.TMP_FILE_PHOTO_DIR + tmpID[0] + '.jpg'):
+                os.remove(cfg.TMP_FILE_PHOTO_DIR + tmpID[0] + '.jpg')
+            elif os.path.exists(cfg.TMP_FILE_PHOTO_DIR + tmpID[0] + '.jpeg'):
+                os.remove(cfg.TMP_FILE_PHOTO_DIR + tmpID[0] + '.jpeg')
+
+            FBTabStudents.deleteStudent(tmpID[0])
+
+        # refresh table content
+        self.refreshStudentsTable()
+
+        msg = CustomInfoMessageBox()
+        msg.setWindowTitle("Done")
+        msg.setText('Students information have been deleted.')
+        msg.exec_()
+        return
 
     # Send Custom Notification to Students
     def SendNotificationToStudent(self, e):

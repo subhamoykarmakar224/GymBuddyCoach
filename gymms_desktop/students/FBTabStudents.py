@@ -2,13 +2,17 @@ import students.SQLTabStudents as SQLTabStudents
 import Configuration as cfg
 import pyrebase
 
+
 def getFBDB():
     firebase = pyrebase.initialize_app(cfg.FB_CONFIG)
     return firebase.database()
 
+
 def getSQLDB():
     return SQLTabStudents.SQLTabStudents()
 
+
+# Get all students data into Firebase
 def getAllStudentsData(gymID):
     data = []
     db = getFBDB()
@@ -27,11 +31,7 @@ def insertStudents(student):
     gymId = sqldb.getGymId()
     fbdb = getFBDB()
     try:
-        fbdb.child("Students").child(gymId).child(student['SID']).set(student)
-        fbdb.child(cfg.FB_TABLE_STUDENTS)\
-            .child(gymId)\
-            .child(student[cfg.KEY_STUDENTS_SID])\
-            .set(student)
+        fbdb.child(cfg.FB_TABLE_STUDENTS).child(gymId).child(student[cfg.KEY_STUDENTS_SID]).set(student)
     except Exception as e:
         return 0
     try:
@@ -40,6 +40,24 @@ def insertStudents(student):
     except:
         print('')
     return 1
+
+
+# Delete student data into Firebase
+def deleteStudent(sid):
+    sqldb = getSQLDB()
+    gymId = sqldb.getGymId()
+    fbdb = getFBDB()
+    try:
+        fbdb.child(cfg.FB_TABLE_STUDENTS).child(gymId).child(sid).remove()
+    except Exception as e:
+        return 0
+    try:
+        del fbdb
+        del sqldb
+    except:
+        print('')
+    return 1
+
 
 
 # if __name__ == '__main__':

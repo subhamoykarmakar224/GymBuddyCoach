@@ -61,9 +61,6 @@ class SQLTabStudents():
             return -1
         return 0
 
-    def deleteStudent(self, id):
-        q = 'delete from ' + cfg.TABLE_STUDENTS + ' where ' + cfg.KEY_STUDENTS_SID + '=' + str(id)
-
     def getLocalActionStudentModule(self):
         query = 'select ' + cfg.KEY_ACTION_ACTION + ' from ' + cfg.TABLE_ACTION + ' where module="student" and status=0'
         res = 0
@@ -75,6 +72,7 @@ class SQLTabStudents():
 
         return res
 
+    # Get the GYM id
     def getGymId(self):
         query = 'select ' + cfg.KEY_ADMIN_ID + ' from ' + cfg.TABLE_ADMIN
         res = ""
@@ -85,3 +83,51 @@ class SQLTabStudents():
             print("SQLAutoSync.getAdminGymId() :: ERROR :: " + str(e))
 
         return res[0]
+
+    # Checks if the phone number os already present in the DB
+    def studentPhoneAlreadyPresentStatus(self, ph):
+        q = 'select count(*) from ' + cfg.TABLE_STUDENTS + ' where ' + cfg.KEY_STUDENTS_PHONE + '="' + ph + '"'
+        res = 0
+        try:
+            self.cur.execute(q)
+            res = self.cur.fetchone()[0]
+        except Exception as e:
+            print("SQLAutoSync.studentPhoneAlreadyPresentStatus() :: ERROR :: " + str(e))
+
+        return res
+
+    # delete the student from database as per SID
+    def deleteStudent(self, id):
+        q = 'delete from ' + cfg.TABLE_STUDENTS + ' where ' + cfg.KEY_STUDENTS_SID + '="' + str(id) + '"'
+        try:
+            self.cur.execute(q)
+            self.db.commit()
+        except Exception as e:
+            print("SQLAutoSync.studentPhoneAlreadyPresentStatus() :: ERROR :: " + str(e))
+            return 0
+
+        return 1
+
+    # Get Student information as per student id
+    def getStudentInfo(self, sid):
+        q = 'select * from ' + cfg.TABLE_STUDENTS + ' where ' + cfg.KEY_STUDENTS_SID + '="' + str(sid) + '"'
+        res = {}
+        tmp = ()
+        try:
+            self.cur.execute(q)
+            tmp = self.cur.fetchone()
+        except Exception as e:
+            print("SQLAutoSync.studentPhoneAlreadyPresentStatus() :: ERROR :: " + str(e))
+            return res
+
+        if tmp != ():
+            res[cfg.KEY_STUDENTS_SID] = tmp[0]
+            res[cfg.KEY_STUDENTS_ALLOTTED_TIME] = tmp[1]
+            res[cfg.KEY_STUDENTS_MEMBERSHIP] = tmp[2]
+            res[cfg.KEY_STUDENTS_PHONE] = tmp[3]
+            res[cfg.KEY_STUDENTS_AGE] = tmp[4]
+            res[cfg.KEY_STUDENTS_NAME] = tmp[5]
+            res[cfg.KEY_STUDENTS_REG_STATUS] = tmp[6]
+            res[cfg.KEY_STUDENTS_DUE] = tmp[7]
+
+        return res

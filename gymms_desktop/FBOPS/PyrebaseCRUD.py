@@ -131,9 +131,9 @@ def advancedSelectData():
 def demoInsertGymAdmin():
     data = {
         'adminName': "Modi",
-        'gymId': "BodyShapersGym-2932",
+        'gymId': "BGS-002",
         'memberrole': 'admin',
-        'gymName': "Body Shapers Gym",
+        'gymName': "B. G. S.",
         'loginstatus': "0",
         'passwd': "1234",
         'phone': "+919876543210",
@@ -154,11 +154,11 @@ def updateGymAdmin():
 
 def demoInsertStudents():
     data = {
-        "SID": "ID-2932-1",
-        "studentname": "Subhamoy Karmakar",
+        "SID": "ID-002-1",
+        "studentname": "Test Dup",
         "studentage": "28",
         "allotedtime": "4:15 PM to 6:15 PM",
-        "phone": "+919432743720",
+        "phone": "+911234567890",
         "membershipvalidity": "31-10-2020",
         "regstatus": "1",
         "dueamount": "0"
@@ -166,9 +166,10 @@ def demoInsertStudents():
 
     # Insert Data with own key
     # db.child("superuser").push(data)
-    db.child("Students").child("BodyShapersGym-2932").child(data['SID']).set(data)
+    db.child("Students").child("BGS-002").child(data['SID']).set(data)
 
 
 if __name__ == '__main__':
     # pass
     demoInsertStudents()
+    # demoInsertGymAdmin()

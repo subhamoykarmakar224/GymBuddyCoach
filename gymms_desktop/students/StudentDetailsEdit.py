@@ -10,23 +10,29 @@ import students.FBTabStudents as FBTabStudents
 from CustomMessageBox import *
 
 
-class StudentDetails(QDialog):
-    def __init__(self):
-        super(StudentDetails, self).__init__()
+class StudentDetailsEdit(QDialog):
+    def __init__(self, sid):
+        super(StudentDetailsEdit, self).__init__()
+        self.sid = sid
         self.profilePath = ''
+        self.photoChange = False
+        if os.path.exists(cfg.TMP_FILE_PHOTO_DIR + sid + '.png'):
+            self.profilePath = cfg.TMP_FILE_PHOTO_DIR + sid + '.png'
+        elif os.path.exists(cfg.TMP_FILE_PHOTO_DIR + sid + '.jpg'):
+            self.profilePath = cfg.TMP_FILE_PHOTO_DIR + sid + '.jpg'
+        elif os.path.exists(cfg.TMP_FILE_PHOTO_DIR + sid + '.jpeg'):
+            self.profilePath = cfg.TMP_FILE_PHOTO_DIR + sid + '.jpeg'
+
         self.regStatus = {
             'Disabled': 0,
             'Enabled': 1,
             'Blocked': -1
         }
         self.allOkStatus = False
-        self.setWindowTitle(cfg.APP_NAME + " : Add New Student")
-        # self.setMinimumSize(800, 500)
+        self.setWindowTitle(cfg.APP_NAME + " : Edit Student Information")
         self.setFixedWidth(800)
         self.setFixedHeight(520)
         self.setContentsMargins(20, 20, 20, 20)
-
-        self.sql = SQLTabStudents.SQLTabStudents()
 
         # Layouts
         self.mainLayout = QGridLayout()
@@ -42,12 +48,14 @@ class StudentDetails(QDialog):
 
         # Widgets
         self.imgProfilePhoto = QLabel()
-        self.btnAddPhoto = QPushButton("Add Photo")
+        self.btnAddPhoto = QPushButton("Edit Photo")
         self.editTextSID = QLineEdit()
         self.editTextFirstName = QLineEdit()
         self.editTextLastName = QLineEdit()
         self.datePickerDOB = QDateEdit(calendarPopup=True)
         self.editTextPhone = QLineEdit()
+        self.editTextCurrentMembership = QLabel("")
+        self.btnAddSubscription = QPushButton("Add Subscription")
         self.datePicker = QDateEdit(calendarPopup=True)
         self.startTimePicker = QTimeEdit()
         self.endTimePicker = QTimeEdit()
@@ -84,12 +92,17 @@ class StudentDetails(QDialog):
         self.mainLayout.addWidget(QLabel('End Time (24-hrs format)'), 6, 2)
         self.mainLayout.addWidget(self.startTimePicker, 7, 1)
         self.mainLayout.addWidget(self.endTimePicker, 7, 2)
-        self.mainLayout.addWidget(QLabel('Membership Valid Till'), 8, 1)
-        self.mainLayout.addWidget(self.datePicker, 9, 1)
-        self.mainLayout.addWidget(QLabel('Registration Status'), 8, 2)
-        self.mainLayout.addWidget(self.regStatusComboBox, 9, 2)
-        self.mainLayout.addWidget(QLabel('Amount Due (INR)'), 10, 1)
-        self.mainLayout.addWidget(self.editTextAmountDue, 11, 1)
+        self.mainLayout.addWidget(QLabel('Current Membership Till'), 8, 1)
+        self.mainLayout.addWidget(self.editTextCurrentMembership, 9, 1)
+        self.mainLayout.addWidget(%, 9, 1)
+        self.mainLayout.addWidget(self.editTextCurrentMembership, 9, 1)
+
+
+        # self.mainLayout.addWidget(QLabel('Registration Status'), 8, 2)
+        # self.mainLayout.addWidget(self.regStatusComboBox, 9, 2)
+
+        # self.mainLayout.addWidget(QLabel('Amount Due (INR)'), 10, 1)
+        # self.mainLayout.addWidget(self.editTextAmountDue, 11, 1)
         self.mainLayout.addLayout(self.layoutButtons, 12, 2)
 
         # Add Main Widget to Parent Layout
@@ -106,33 +119,95 @@ class StudentDetails(QDialog):
         # self.layoutButtons.add
 
     def setWidgetProperties(self):
+        sql = SQLTabStudents.SQLTabStudents()
+        sid = self.sid
+        student = sql.getStudentInfo(sid)
+        if student == {}:
+            self.close()
+
+        # {'SID': 'ID-2932-da96eb71', 'allotedtime': '06:00 AM to 08:00 AM',
+        # 'membershipvalidity': '2020-09-13', 'phone': '+916549873210',
+        # 'studentage': '1976-03-04', 'studentname': 'Elon Musk', 'regstatus': '1',
+        # 'dueamount': '0'}
+
+        # SET :: PROFILE PHOTO
         self.btnAddPhoto.setIcon(QIcon(cfg.IC_ADD))
         self.btnAddPhoto.setFixedHeight(50)
 
-        profilePhotoPixMap = QPixmap(cfg.IC_ADD_PHOTO)
+        if self.profilePath == '':
+            profilePhotoPixMap = QPixmap(cfg.IC_ADD_PHOTO)
+        else:
+            profilePhotoPixMap = QPixmap(self.profilePath)
+
         self.imgProfilePhoto.setPixmap(profilePhotoPixMap.scaled(100, 100, Qt.KeepAspectRatio, transformMode=Qt.SmoothTransformation))
         self.imgProfilePhoto.setCursor(Qt.PointingHandCursor)
         self.imgProfilePhoto.setToolTip("add profile image")
 
+        # SET :: FIRST NAME and LAST NAME
+        name = student[cfg.KEY_STUDENTS_NAME].split(' ')
+        self.editTextFirstName.setText(' '.join(name[:len(name) - 1]))
+        self.editTextLastName.setText(name[::-1][0])
+
+        # SET :: CURRENT MEMBERSHIP VALIDITY
+        membership = student[cfg.KEY_STUDENTS_MEMBERSHIP]
+        self.editTextCurrentMembership.setText(self.convertSQLDateFormatToCustom(membership))
+
+
         self.datePicker.setDateTime(QDateTime.currentDateTime())
         self.datePicker.setMinimumDate(QDate.currentDate())
         self.datePicker.setDisplayFormat('dd MMMM, yyyy')
+        # membership = student[cfg.KEY_STUDENTS_MEMBERSHIP].split("-")
+        # membership = [int(m) for m in membership]
+        # try:
+        #     tmpQDate = QDate()
+        #     tmpQDate.setDate(membership[0], membership[1], membership[2])
+        #     self.datePicker.setDate(tmpQDate)
+        # except Exception as e:
+        #     print(e)
+        #     return
 
+        dob = student[cfg.KEY_STUDENTS_AGE].split("-") # 1976-03-04
+        dob = [int(d) for d in dob]
         self.datePickerDOB.setDateTime(QDateTime.currentDateTime())
         self.datePickerDOB.setMaximumDate(QDate.currentDate())
         self.datePickerDOB.setDisplayFormat('dd MMMM, yyyy')
+        try:
+            tmpQDate = QDate()
+            tmpQDate.setDate(dob[0], dob[1], dob[2])
+            self.datePickerDOB.setDate(tmpQDate)
+        except Exception as e:
+            print(e)
+            return
 
+        phone = student[cfg.KEY_STUDENTS_PHONE]
+        self.editTextPhone.setText(phone)
+
+        startendtime = student[cfg.KEY_STUDENTS_ALLOTTED_TIME].split(" to ")
+        startendtime[0] = self.convertTo24HrsFormat(startendtime[0]).split(":")
+        startendtime[1] = self.convertTo24HrsFormat(startendtime[1]).split(":")
         self.startTimePicker.setDisplayFormat('HH:mm')
+        self.startTimePicker.setTime(QTime(int(startendtime[0][0]), int(startendtime[0][1])))
         self.endTimePicker.setDisplayFormat('HH:mm')
+        self.endTimePicker.setTime(QTime(int(startendtime[1][0]), int(startendtime[1][1])))
 
         self.regStatusComboBox.clear()
         self.regStatusComboBox.addItems(self.regStatus.keys())
+        opt = ''
+        for k in self.regStatus.keys():
+            if str(self.regStatus[k]) == student[cfg.KEY_STUDENTS_REG_STATUS]:
+                opt = k
+                break
+        if opt == '':
+            self.regStatusComboBox.setCurrentIndex(0)
+        else:
+            self.regStatusComboBox.setCurrentIndex(list(self.regStatus.keys()).index(opt))
 
-        self.editTextSID.setText(self.getRandomSID())
+        self.editTextAmountDue.setText(student[cfg.KEY_STUDENTS_DUE])
+
+        self.editTextSID.setText(self.sid)
         self.editTextSID.setReadOnly(True)
         self.editTextFirstName.setPlaceholderText("First Name")
         self.editTextLastName.setPlaceholderText("Last Name")
-        self.editTextAmountDue.setText("0")
         self.editTextPhone.setPlaceholderText("Contact No.")
 
         self.btnSave.setFixedWidth(80)
@@ -145,13 +220,6 @@ class StudentDetails(QDialog):
         self.btnSave.clicked.connect(self.saveStudent)
         self.btnCancel.clicked.connect(self.cancelStudent)
 
-    def getRandomSID(self):
-        r = uuid.uuid4().__str__()
-        r = r[:r.index("-")]
-        gymid = self.sql.getGymId()
-        gymid = gymid[gymid.index("-") + 1:]
-        return 'ID-' + gymid + '-' + r
-
     def cancelStudent(self):
         self.close()
 
@@ -161,9 +229,12 @@ class StudentDetails(QDialog):
         filePath = filePath[0]
         if filePath == '':
             return
-        if self.profilePath != '' and os.path.isfile(self.profilePath):
+
+        if self.profilePath != '' and os.path.isfile(self.profilePath) and self.photoChange:
             os.remove(self.profilePath)
             self.profilePath = ''
+
+        self.photoChange = True
 
         extension = filePath[::-1]
         extension = extension[:extension.index('.')][::-1]
@@ -191,7 +262,7 @@ class StudentDetails(QDialog):
         msg.setDefaultButton(QMessageBox.No)
         reply = msg.exec_()
         if reply == QMessageBox.Yes:
-            if self.profilePath != '' and os.path.isfile(self.profilePath):
+            if self.profilePath != '' and os.path.isfile(self.profilePath) and self.photoChange:
                 os.remove(self.profilePath)
                 self.profilePath = ''
             event.accept()
@@ -424,9 +495,19 @@ class StudentDetails(QDialog):
         s = datetime.datetime.strptime(s, inFormat).strftime(sqlFormat)
         return s
 
+    def convertSQLDateFormatToCustom(self, s):
+        sqlFormat = '%Y-%m-%d'
+        inFormat = '%d %B, %Y'
+        s = datetime.datetime.strptime(s, sqlFormat).strftime(inFormat)
+        return s
+
     def convertTo12HrsFormat(self, t):
         t = time.strptime(t, "%H:%M")
         return time.strftime("%I:%M %p", t)
+
+    def convertTo24HrsFormat(self, t):
+        t = time.strptime(t, "%I:%M %p")
+        return time.strftime("%H:%M", t)
 
     # check if connected to the internet
     def isConnectedToInternet(self):
