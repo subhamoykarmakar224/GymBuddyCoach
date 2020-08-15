@@ -87,8 +87,9 @@ class MainWindowApplication(QMainWindow):
             self.close()
 
         self.setWindowTitle(cfg.APP_NAME + " Welcome, " + self.userData[cfg.KEY_ADMIN_USERNAME] + "!")
-        self.setMinimumSize(1280, 720)
+        self.setMinimumSize(1280, 600)
         self.setWindowIcon(QIcon(cfg.TITLEBAR_ICON_URL))
+        self.showMaximized()
 
         vLayout = QVBoxLayout()
 

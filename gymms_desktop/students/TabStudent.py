@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
-import requests, os
+import requests, os, datetime
 
 import Configuration as cfg
 from Helper import *
@@ -10,6 +10,8 @@ import students.SQLTabStudents as SQLTabStudents
 import students.FBTabStudents as FBTabStudents
 import students.StudentDetails as StudentDetails
 import students.StudentDetailsEdit as StudentDetailsEdit
+import students.SubscriptionControl as SubscriptionControl
+import students.SendNotificationToStudent as SendNotificationToStudent
 
 
 class TabStudent(QWidget):
@@ -17,6 +19,12 @@ class TabStudent(QWidget):
         super(TabStudent, self).__init__()
 
         self.selectedStudent = []
+        self.selectAllStatus = False
+        self.regStatus = {
+            '0':'Disabled',
+            '1': 'Enabled',
+            '-1': 'Blocked'
+        }
 
         # Layouts
         self.mainLayout = QGridLayout()
@@ -37,6 +45,7 @@ class TabStudent(QWidget):
         self.lblClearIcon = QLabel()
         self.pixMapICClear = QPixmap(cfg.IC_DELETE)
         self.table = QTableWidget()
+        self.btnSelectAll = QLabel()
         self.btnNewStudents = QLabel()
         self.btnEditStudents = QLabel()
         self.btnSubscription = QLabel()
@@ -53,6 +62,7 @@ class TabStudent(QWidget):
         self.layoutSearch.addWidget(self.lineEdtSearch)
         self.layoutSearch.addWidget(self.lblClearIcon)
 
+        self.layoutButtons.addWidget(self.btnSelectAll)
         self.layoutButtons.addWidget(self.btnNewStudents)
         self.layoutButtons.addWidget(self.btnEditStudents)
         self.layoutButtons.addWidget(self.btnSubscription)
@@ -84,7 +94,7 @@ class TabStudent(QWidget):
         self.lblClearIcon.setToolTip("Clear Search Term")
 
         # Student List table
-        self.columnsHeaders = ['#', 'ID', 'Name', 'Alloted Time', 'Membership Validity', 'Due Amount']
+        self.columnsHeaders = ['#', 'ID', 'Name', 'Alloted Time', 'Membership Validity', 'Due Amount', 'Status']
         self.table.setColumnCount(self.columnsHeaders.__len__())
         self.table.setHorizontalHeaderLabels(self.columnsHeaders)
         self.table.horizontalHeader().setStretchLastSection(True)
@@ -98,7 +108,11 @@ class TabStudent(QWidget):
         self.table.setColumnWidth(4, 200)
         self.table.cellDoubleClicked.connect(self.onCellDoubleClickAction)
 
-        # Btn new students
+        self.btnSelectAll.setPixmap(getPixMap(cfg.IC_SELECT_ALL))
+        self.btnSelectAll.setCursor(Qt.PointingHandCursor)
+        self.btnSelectAll.setToolTip("Select/Deselect All")
+        self.btnSelectAll.setAlignment(Qt.AlignTop)
+
         self.btnNewStudents.setPixmap(getPixMap(cfg.IC_ADD))
         self.btnNewStudents.setCursor(Qt.PointingHandCursor)
         self.btnNewStudents.setToolTip("Add new students")
@@ -128,6 +142,7 @@ class TabStudent(QWidget):
         self.refreshStudentsTable()
 
     def setListeners(self):
+        self.btnSelectAll.mousePressEvent = self.selectAllRows
         self.btnNewStudents.mousePressEvent = self.AddNewStudent
         self.btnEditStudents.mousePressEvent = self.EditStudent
         self.btnSubscription.mousePressEvent = self.EditSubscription
@@ -145,8 +160,9 @@ class TabStudent(QWidget):
             self.table.setItem(i, 1, QTableWidgetItem(students[i][0]))
             self.table.setItem(i, 2, QTableWidgetItem(students[i][5]))
             self.table.setItem(i, 3, QTableWidgetItem(students[i][1]))
-            self.table.setItem(i, 4, QTableWidgetItem(students[i][2]))
+            self.table.setItem(i, 4, QTableWidgetItem(self.convertSQLDateFormatToCustom(students[i][2])))
             self.table.setItem(i, 5, QTableWidgetItem(students[i][-1]))
+            self.table.setItem(i, 6, QTableWidgetItem(self.regStatus[students[i][6]]))
 
         del sqllocal
 
@@ -210,7 +226,10 @@ class TabStudent(QWidget):
             msg.exec_()
             return
 
-        print("Subscription")
+        s = SubscriptionControl.SubscriptionControl(ids[0][0])
+        s.exec_()
+        if s.allOkStatus:
+            self.refreshStudentsTable()
 
     # Delete Student
     def DeleteStudent(self, e):
@@ -286,8 +305,11 @@ class TabStudent(QWidget):
             r = msg.exec_()
             if r == QMessageBox.No:
                 return
+
+        # [('ID-2932-5d8d6b34', 'Test 1 '), ('ID-2932-7e24dabd', 'Subhamoy Karmakar'), ('ID-2932-da96eb71', 'Elon TRON Musk')]
         ids = self.getCheckedRowIDs()
-        print("Send Notification to Student : ", ids)
+        notif = SendNotificationToStudent.SendNotificationToStudent(ids)
+        notif.exec_()
 
     # change the checkbox state on double click
     def onCellDoubleClickAction(self, r, c):
@@ -306,6 +328,17 @@ class TabStudent(QWidget):
                 pass
         return sid
 
+    # Select/Deselect all
+    def selectAllRows(self, e):
+        if self.selectAllStatus:
+            self.selectAllStatus = False
+            for i in range(self.table.rowCount()):
+                self.table.cellWidget(i, 0).setChecked(False)
+        else:
+            self.selectAllStatus = True
+            for i in range(self.table.rowCount()):
+                self.table.cellWidget(i, 0).setChecked(True)
+
     # check if connected to the internet
     def isConnectedToInternet(self):
         url = 'https://www.google.com/'
@@ -314,3 +347,9 @@ class TabStudent(QWidget):
         except Exception as e:
             return str(e)
         return res.status_code
+
+    def convertSQLDateFormatToCustom(self, s):
+        sqlFormat = '%Y-%m-%d'
+        inFormat = '%d %B, %Y'
+        s = datetime.datetime.strptime(s, sqlFormat).strftime(inFormat)
+        return s

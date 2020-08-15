@@ -56,6 +56,10 @@ KEY_SOFTWARE_FLAG_NAME = 'flagname'
 KEY_SOFTWARE_FLAG_STATUS = 'status'
 CONST_SOFTWARE_FLAG_FIRST_INSTALL_STUDENTS = 'firstinstallstudent'
 
+TABLE_MSG_NOTIF = 'msgnotif'
+KEY_MSG_NOTIF_CNT = 'msgcounter'
+KEY_MSG_NOTIF_SID = 'SID'
+KEY_MSG_NOTIF_MSG = 'message'
 
 # FIREBASE
 # FB_DB_URL = 'https://gymbuddyall.firebaseio.com/'
@@ -100,6 +104,10 @@ FB_KEY_ADMIN_USERNAME = 'username'
 FB_KEY_ADMIN_PASSWORD = 'passwd'
 FB_KEY_ADMIN_STATUS = 'loginstatus'
 
+FB_TABLE_MSG_NOTIF = 'msgnotif'
+FB_KEY_MSG_NOTIF_CNT = 'msgcounter'
+FB_KEY_MSG_NOTIF_SID = 'SID'
+FB_KEY_MSG_NOTIF_MSG = 'message'
 
 # FILE URL
 TMP_FILE_URL = "./tmp/tmp.txt"
@@ -120,3 +128,8 @@ IC_MESSAGE = './src/icons/ic_message.png'
 IC_NOTIFICATION = './src/icons/ic_notification.png'
 IC_ADD_NOTIFICATION = './src/icons/ic_add_notification.png'
 IC_ADD_PHOTO = './src/icons/ic_add_photo.png'
+IC_ADD_COLOR = './src/icons/ic_add_color.png'
+IC_SUB_COLOR = './src/icons/ic_sub_color.png'
+IC_REFRESH_COLOR = './src/icons/ic_refresh_color.png'
+IC_DELETE_COLOR = './src/icons/ic_delete_color.png'
+IC_SELECT_ALL = './src/icons/ic_select_all.png'

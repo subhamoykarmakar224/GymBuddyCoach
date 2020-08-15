@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
-import uuid, shutil, os, datetime, time, requests
+import uuid, shutil, os, datetime, time, requests, calendar
 
 import Configuration as cfg
 from Helper import *
@@ -16,6 +16,7 @@ class StudentDetailsEdit(QDialog):
         self.sid = sid
         self.profilePath = ''
         self.photoChange = False
+        self.validityCounter = 0
         if os.path.exists(cfg.TMP_FILE_PHOTO_DIR + sid + '.png'):
             self.profilePath = cfg.TMP_FILE_PHOTO_DIR + sid + '.png'
         elif os.path.exists(cfg.TMP_FILE_PHOTO_DIR + sid + '.jpg'):
@@ -42,6 +43,7 @@ class StudentDetailsEdit(QDialog):
 
         # Sub layout
         self.layoutButtons = QHBoxLayout()
+        self.layoutExtendValidity = QHBoxLayout()
 
         # Sub layout properties
         self.setSubLayoutProperties()
@@ -54,8 +56,10 @@ class StudentDetailsEdit(QDialog):
         self.editTextLastName = QLineEdit()
         self.datePickerDOB = QDateEdit(calendarPopup=True)
         self.editTextPhone = QLineEdit()
-        self.editTextCurrentMembership = QLabel("")
-        self.btnAddSubscription = QPushButton("Add Subscription")
+        self.editTextCurrentMembership = QLineEdit('')
+        self.btnAddSubscription = QLabel()
+        self.btnSubSubscription = QLabel()
+        self.editTextNewMembership = QLineEdit('')
         self.datePicker = QDateEdit(calendarPopup=True)
         self.startTimePicker = QTimeEdit()
         self.endTimePicker = QTimeEdit()
@@ -73,6 +77,9 @@ class StudentDetailsEdit(QDialog):
         # Add to Sub Layout
         self.layoutButtons.addWidget(self.btnSave, 0, Qt.AlignRight)
         self.layoutButtons.addWidget(self.btnCancel, 0, Qt.AlignLeft)
+        self.layoutExtendValidity.addWidget(QLabel('Click on Button to extend validity by 1 Month'))
+        self.layoutExtendValidity.addWidget(self.btnAddSubscription)
+        self.layoutExtendValidity.addWidget(self.btnSubSubscription)
 
         # Add to Main Layout
         self.mainLayout.addWidget(self.imgProfilePhoto, 0, 0, 3, 1)
@@ -94,16 +101,14 @@ class StudentDetailsEdit(QDialog):
         self.mainLayout.addWidget(self.endTimePicker, 7, 2)
         self.mainLayout.addWidget(QLabel('Current Membership Till'), 8, 1)
         self.mainLayout.addWidget(self.editTextCurrentMembership, 9, 1)
-        self.mainLayout.addWidget(%, 9, 1)
-        self.mainLayout.addWidget(self.editTextCurrentMembership, 9, 1)
-
-
-        # self.mainLayout.addWidget(QLabel('Registration Status'), 8, 2)
-        # self.mainLayout.addWidget(self.regStatusComboBox, 9, 2)
-
-        # self.mainLayout.addWidget(QLabel('Amount Due (INR)'), 10, 1)
-        # self.mainLayout.addWidget(self.editTextAmountDue, 11, 1)
-        self.mainLayout.addLayout(self.layoutButtons, 12, 2)
+        self.mainLayout.addLayout(self.layoutExtendValidity, 10, 1)
+        self.mainLayout.addWidget(QLabel('New Membership Extension'), 8, 2)
+        self.mainLayout.addWidget(self.editTextNewMembership, 9, 2)
+        self.mainLayout.addWidget(QLabel('Amount Due (INR)'), 11, 1)
+        self.mainLayout.addWidget(self.editTextAmountDue, 12, 1)
+        self.mainLayout.addWidget(QLabel('Registration Status'), 11, 2)
+        self.mainLayout.addWidget(self.regStatusComboBox, 12, 2)
+        self.mainLayout.addLayout(self.layoutButtons, 13, 2)
 
         # Add Main Widget to Parent Layout
         self.setLayout(self.mainLayout)
@@ -125,11 +130,6 @@ class StudentDetailsEdit(QDialog):
         if student == {}:
             self.close()
 
-        # {'SID': 'ID-2932-da96eb71', 'allotedtime': '06:00 AM to 08:00 AM',
-        # 'membershipvalidity': '2020-09-13', 'phone': '+916549873210',
-        # 'studentage': '1976-03-04', 'studentname': 'Elon Musk', 'regstatus': '1',
-        # 'dueamount': '0'}
-
         # SET :: PROFILE PHOTO
         self.btnAddPhoto.setIcon(QIcon(cfg.IC_ADD))
         self.btnAddPhoto.setFixedHeight(50)
@@ -150,8 +150,16 @@ class StudentDetailsEdit(QDialog):
 
         # SET :: CURRENT MEMBERSHIP VALIDITY
         membership = student[cfg.KEY_STUDENTS_MEMBERSHIP]
+        self.editTextCurrentMembership.setReadOnly(True)
         self.editTextCurrentMembership.setText(self.convertSQLDateFormatToCustom(membership))
 
+        self.editTextNewMembership.setReadOnly(True)
+        self.editTextNewMembership.setText(self.convertSQLDateFormatToCustom(membership))
+
+        self.btnAddSubscription.setPixmap(getPixMap(cfg.IC_ADD_COLOR))
+        self.btnAddSubscription.setCursor(Qt.PointingHandCursor)
+        self.btnSubSubscription.setPixmap(getPixMap(cfg.IC_SUB_COLOR))
+        self.btnSubSubscription.setCursor(Qt.PointingHandCursor)
 
         self.datePicker.setDateTime(QDateTime.currentDateTime())
         self.datePicker.setMinimumDate(QDate.currentDate())
@@ -180,6 +188,7 @@ class StudentDetailsEdit(QDialog):
             return
 
         phone = student[cfg.KEY_STUDENTS_PHONE]
+        phone = phone[3:]
         self.editTextPhone.setText(phone)
 
         startendtime = student[cfg.KEY_STUDENTS_ALLOTTED_TIME].split(" to ")
@@ -219,6 +228,8 @@ class StudentDetailsEdit(QDialog):
         self.btnAddPhoto.clicked.connect(self.loadStudentPhoto)
         self.btnSave.clicked.connect(self.saveStudent)
         self.btnCancel.clicked.connect(self.cancelStudent)
+        self.btnAddSubscription.mousePressEvent = self.increaseValidityByOneMonth
+        self.btnSubSubscription.mousePressEvent = self.decreaseValidityByOneMonth
 
     def cancelStudent(self):
         self.close()
@@ -275,25 +286,37 @@ class StudentDetailsEdit(QDialog):
         if not status:
             return
 
-        res = self.sql.insertStudents([student])
+        sql = SQLTabStudents.SQLTabStudents()
+        res = sql.updateStudentInfo(student)
+
         if res == 0:
             if self.isConnectedToInternet() == 200:
-                FBTabStudents.insertStudents(student)
+                FBTabStudents.updateStudents(student)
 
-            if self.profilePath != '':
-                shutil.move(self.profilePath, cfg.TMP_FILE_PHOTO_DIR)
+        if self.photoChange:
+            oldPath = cfg.TMP_FILE_PHOTO_DIR + student[cfg.KEY_STUDENTS_SID]
 
-            msg = CustomInfoMessageBox()
-            msg.setWindowTitle("Saved")
-            msg.setText("Student Data has been updated!")
-            msg.exec_()
-            self.allOkStatus = True
-            self.close()
-        else:
-            msg = CustomCriticalMessageBox()
-            msg.setWindowTitle("Error")
-            msg.setText("There was an error saving the information. Please try again!")
-            msg.exec_()
+            if os.path.exists(oldPath + '.png') or os.path.exists(oldPath + '.jpg') or os.path.exists(oldPath + '.jpeg'):
+                try:
+                    os.remove(oldPath + '.jpg')
+                except:
+                    try:
+                        os.remove(oldPath + '.png')
+                    except:
+                        try:
+                            os.remove(oldPath + '.jpeg')
+                        except:
+                            pass
+
+            shutil.move(self.profilePath, cfg.TMP_FILE_PHOTO_DIR)
+
+        msg = CustomInfoMessageBox()
+        msg.setWindowTitle("Saved")
+        msg.setText("Student Data has been updated!")
+        msg.exec_()
+        self.allOkStatus = True
+        self.close()
+
 
     # Validates fields
     def validateFields(self):
@@ -306,9 +329,10 @@ class StudentDetailsEdit(QDialog):
         phone = self.editTextPhone.text().__str__()
         starttime = self.startTimePicker.text().__str__()
         endtime = self.endTimePicker.text().__str__()
-        membership = self.datePicker.text().__str__()
-        regstatus = self.regStatusComboBox.currentText().__str__()
+        oldmembership = self.editTextCurrentMembership.text().__str__()
+        newmembership = self.editTextNewMembership.text().__str__()
         due = self.editTextAmountDue.text().__str__()
+        regstatus = self.regStatusComboBox.currentText().__str__()
         photo = self.profilePath.__str__()
 
         # First Name
@@ -364,7 +388,8 @@ class StudentDetailsEdit(QDialog):
             status = False
             return status, student
 
-        if self.sql.studentPhoneAlreadyPresentStatus("+91" + phone) != 0:
+        sql = SQLTabStudents.SQLTabStudents()
+        if sql.studentPhoneAlreadyPresentStatusExcept("+91" + phone, sid) != 0:
             msg = CustomCriticalMessageBox()
             msg.setWindowTitle("Error")
             msg.setText("The phone number is already in use. Please check the number entered and try again.")
@@ -401,28 +426,20 @@ class StudentDetailsEdit(QDialog):
                 return status, student
 
         # Membership
-        datediff = self.getNoOfMembershipDays(membership)
-        if datediff == 0:
-            msg = CustomCriticalMessageBox()
-            msg.setWindowTitle("Error")
-            msg.setText("The membership validity date you have entered is less invalid. "
-                        "Please check the value and try again.")
-            msg.exec_()
+        datediff = self.getNoOfMembershipDays(oldmembership, newmembership)
+        msg = CustomInfoMessageBox()
+        msg.setWindowTitle("Alert")
+        msg.setText("Are you sure you want to extend the membership validity for " + str(datediff) +
+                    " month(s), till " + newmembership + " ?")
+        msg.addButton(QMessageBox.Yes)
+        msg.addButton(QMessageBox.No)
+        msg.setDefaultButton(QMessageBox.No)
+        r = msg.exec_()
+        if r == QMessageBox.No:
             status = False
             return status, student
-        else:
-            msg = CustomInfoMessageBox()
-            msg.setWindowTitle("Alert")
-            msg.setText("Are you sure you want to extend the membership validity for " + str(datediff) +
-                        " days, till " + membership + " ?")
-            msg.addButton(QMessageBox.Yes)
-            msg.addButton(QMessageBox.No)
-            msg.setDefaultButton(QMessageBox.No)
-            r = msg.exec_()
-            if r == QMessageBox.No:
-                status = False
-                return status, student
 
+        # Registration Status
         msg = CustomInfoMessageBox()
         msg.setWindowTitle("Alert")
         msg.setText("Are you sure you want to set the membership status to- " + regstatus + "?")
@@ -445,10 +462,10 @@ class StudentDetailsEdit(QDialog):
             status = False
             return status, student
 
-        if self.profilePath == '':
+        if self.photoChange:
             msg = CustomInfoMessageBox()
             msg.setWindowTitle("Alert")
-            msg.setText("You have not added any photo yet. Do you wish to proceed?")
+            msg.setText("You are about the change the photo of the student with a new one. Are you sure?")
             msg.addButton(QMessageBox.Yes)
             msg.addButton(QMessageBox.No)
             msg.setDefaultButton(QMessageBox.No)
@@ -460,7 +477,7 @@ class StudentDetailsEdit(QDialog):
         student = {
             cfg.KEY_STUDENTS_SID: sid,
             cfg.KEY_STUDENTS_ALLOTTED_TIME: self.convertTo12HrsFormat(starttime) + " to " + self.convertTo12HrsFormat(endtime),
-            cfg.KEY_STUDENTS_MEMBERSHIP: self.convertToSQLDateFormat(membership),
+            cfg.KEY_STUDENTS_MEMBERSHIP: self.convertToSQLDateFormat(newmembership),
             cfg.KEY_STUDENTS_PHONE: "+91" + str(phone),
             cfg.KEY_STUDENTS_AGE: str(self.convertToSQLDateFormat(dob)),
             cfg.KEY_STUDENTS_NAME: str(firstname + " " + lastname),
@@ -470,6 +487,26 @@ class StudentDetailsEdit(QDialog):
         }
         return status, student
 
+    def increaseValidityByOneMonth(self, e):
+        self.validityCounter += 1
+        self.setNewValidityDateField()
+
+    def decreaseValidityByOneMonth(self, e):
+        self.validityCounter -= 1
+        self.setNewValidityDateField()
+
+    def setNewValidityDateField(self):
+        currentValidity = self.editTextCurrentMembership.text().__str__().strip()
+        currentValidity = self.convertToSQLDateFormat(currentValidity).split('-')
+        currentValidity = [int(i) for i in currentValidity]
+        sourcedate = datetime.date(currentValidity[0], currentValidity[1], currentValidity[2])
+        month = sourcedate.month - 1 + self.validityCounter
+        year = sourcedate.year + month // 12
+        month = month % 12 + 1
+        day = min(sourcedate.day, calendar.monthrange(year, month)[1])
+        newValidity = datetime.date(year, month, day).__format__('%d %B, %Y')
+        self.editTextNewMembership.setText(newValidity)
+
     def calculateAge(self, birthDate):
         tmp = self.convertToSQLDateFormat(birthDate).split("-")
         birthDate = datetime.date(int(tmp[0]), int(tmp[1]), int(tmp[2]))
@@ -477,17 +514,20 @@ class StudentDetailsEdit(QDialog):
         age = today.year - birthDate.year -((today.month, today.day) < (birthDate.month, birthDate.day))
         return age
 
-    def getNoOfMembershipDays(self, m):
-        start = datetime.date.today()
-        end = self.convertToSQLDateFormat(m)
+    def getNoOfMembershipDays(self, start, end):
+        start = self.convertToSQLDateFormat(start)
+        start = start.split('-')
+        start = datetime.date(int(start[0]), int(start[1]), int(start[2]))
+        end = self.convertToSQLDateFormat(end)
         end = end.split('-')
         end = datetime.date(int(end[0]), int(end[1]), int(end[2]))
         datediff =  str(end - start)
         try:
-            datediff = datediff[:datediff.index(" ")]
+            datediff = start.month - end.month + 12*(start.year - end.year)
         except:
             return 0
-        return int(datediff)
+
+        return datediff
 
     def convertToSQLDateFormat(self, s):
         inFormat = '%d %B, %Y'

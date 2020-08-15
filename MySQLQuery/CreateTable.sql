@@ -43,11 +43,19 @@ flagname varchar(100),
 status int
 );
 
+create table msgnotif(
+msgcounter int primary key,
+SID varchar(100),
+message text,
+foreign key (SID) references Students(SID)
+);
 
 drop table if exists GymAdmin;
 drop table if exists Students;
 drop table if exists Notification;
 drop table if exists localaction;
+drop table if exists msgnotif;
+
 
 
 

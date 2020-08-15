@@ -42,6 +42,25 @@ def insertStudents(student):
     return 1
 
 
+# Update student information
+def updateStudents(student):
+    sqldb = getSQLDB()
+    gymId = sqldb.getGymId()
+    fbdb = getFBDB()
+    try:
+        # update a single value
+        # db.child("superuser").child("Kanchan Basu").update({"membershipstart": "01-08-2020"})
+        fbdb.child(cfg.FB_TABLE_STUDENTS).child(gymId).child(student[cfg.KEY_STUDENTS_SID]).update(student)
+    except Exception as e:
+        return 0
+    try:
+        del fbdb
+        del sqldb
+    except:
+        print('')
+    return 1
+
+
 # Delete student data into Firebase
 def deleteStudent(sid):
     sqldb = getSQLDB()
@@ -58,6 +77,24 @@ def deleteStudent(sid):
         print('')
     return 1
 
+
+# Send Notif Message
+def sendNotification(indx, sid, msg, gymId):
+    data = {
+        cfg.FB_KEY_MSG_NOTIF_CNT: indx,
+        cfg.FB_KEY_MSG_NOTIF_MSG: msg
+    }
+    fbdb = getFBDB()
+    try:
+        fbdb.child(cfg.FB_TABLE_MSG_NOTIF).child(gymId).child(sid[0]).child(indx).set(data)
+    except Exception as e:
+        return 0
+    try:
+        del fbdb
+    except:
+        print('')
+
+    return 1
 
 
 # if __name__ == '__main__':

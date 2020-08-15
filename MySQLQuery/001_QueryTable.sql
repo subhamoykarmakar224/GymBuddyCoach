@@ -18,7 +18,11 @@ select * from localaction;
 select * from notification;
 select * from softwareflags;
 select * from students;
+select * from msgnotif;
+select * from msgnotif order by msgcounter desc limit 1;
+
 
 delete from students;
+delete from msgnotif;
 
 update softwareflags set status=0 where flagname="firstinstallstudent";
