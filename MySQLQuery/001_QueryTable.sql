@@ -19,7 +19,8 @@ select * from notification;
 select * from softwareflags;
 select * from students;
 select * from msgnotif;
-select * from msgnotif order by msgcounter desc limit 1;
+
+select * from msgnotif order by msgcounter desc limi;
 
 
 delete from students;

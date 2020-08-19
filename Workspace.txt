@@ -28,3 +28,22 @@ SQL =
 'regstatus': '1', 
 'dueamount': '0'
 }
+
+-----------------------------------------------------------------------------------------
+-MF5hlu70Ulzt7EL3GYq
+dateTime: "Wed Aug 19 18:04:56 GMT+05:30 2020"
+gymId: "BodyShapersGym-2932"
+level: "GREEN"
+msg: "Student entered the gym."
+studentId: "ID-2932-7e24dabd"
+
+-----------------------------------------------------------------------------------------
+
+-MDxZthcBB8KtsAFF-Yc
+dateTime: "Wed Aug 05 13:13:54 GMT+05:30 2020"
+gymId: "BodyShapersGym-2932"
+level: "RED"
+msg: "Student tried to access when not alloted."
+studentId: "ID-2932-1"
+
+-----------------------------------------------------------------------------------------

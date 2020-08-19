@@ -1,8 +1,9 @@
 import mysql.connector as mysql
 import Configuration as cfg
+import requests, uuid
 
 
-class SQLTabStudents():
+class SQLTabStudents:
     def __init__(self):
         self.db = mysql.connect(
             host=cfg.db_host,
@@ -188,7 +189,7 @@ class SQLTabStudents():
         return res
 
     # Gets Last Notification Cnt
-    def getLastNotificationCnt(self):
+    def getLastNotificationMsgCnt(self):
         q = 'select ' + cfg.KEY_MSG_NOTIF_CNT + ' from ' + cfg.TABLE_MSG_NOTIF + ' order by ' + \
             cfg.KEY_MSG_NOTIF_CNT + ' desc limit 1'
         tmp = 0
@@ -204,8 +205,8 @@ class SQLTabStudents():
 
         return tmp
 
-    def sendNotifications(self, sids, msg):
-        startIndex = self.getLastNotificationCnt() [0]
+    def sendNotificationsMsg(self, sids, msg):
+        startIndex = self.getLastNotificationMsgCnt()[0]
         startIndex += 1
         for sid in sids:
             q = 'insert into ' + cfg.TABLE_MSG_NOTIF + ' (' + cfg.KEY_MSG_NOTIF_CNT + ', ' + \
@@ -214,7 +215,7 @@ class SQLTabStudents():
             try:
                 self.cur.execute(q)
             except Exception as e:
-                print("SQLAutoSync.sendNotifications() :: ERROR :: " + str(e))
+                print("SQLAutoSync.sendNotificationsMsg() :: ERROR :: " + str(e))
                 return 0
 
             try:
@@ -223,3 +224,19 @@ class SQLTabStudents():
                 print("SQLAutoSync.sendNotifications() :: ERROR :: " + str(e))
                 return 0
         return 1
+
+    def sendNewNotification(self, gymId, sid, level, msg):
+        if self.isConnectedToInternet() != 200:
+            pass
+
+
+
+    # check if connected to the internet
+    def isConnectedToInternet(self):
+        url = 'https://www.google.com/'
+        try:
+            res = requests.get(url, verify=False, timeout=10)
+        except Exception as e:
+            return str(e)
+        return res.status_code
+

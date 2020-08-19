@@ -12,6 +12,7 @@ import students.StudentDetails as StudentDetails
 import students.StudentDetailsEdit as StudentDetailsEdit
 import students.SubscriptionControl as SubscriptionControl
 import students.SendNotificationToStudent as SendNotificationToStudent
+import students.PunchInStudent as PunchInStudent
 
 
 class TabStudent(QWidget):
@@ -49,6 +50,7 @@ class TabStudent(QWidget):
         self.btnNewStudents = QLabel()
         self.btnEditStudents = QLabel()
         self.btnSubscription = QLabel()
+        self.btnPunchIn = QLabel()
         self.btnDeleteStudents = QLabel()
         self.btnSendNotifStudents = QLabel()
 
@@ -66,6 +68,7 @@ class TabStudent(QWidget):
         self.layoutButtons.addWidget(self.btnNewStudents)
         self.layoutButtons.addWidget(self.btnEditStudents)
         self.layoutButtons.addWidget(self.btnSubscription)
+        self.layoutButtons.addWidget(self.btnPunchIn)
         self.layoutButtons.addWidget(self.btnSendNotifStudents)
         self.layoutButtons.addWidget(self.btnDeleteStudents)
 
@@ -128,6 +131,11 @@ class TabStudent(QWidget):
         self.btnSubscription.setToolTip("Extend Subscription")
         self.btnSubscription.setAlignment(Qt.AlignTop)
 
+        self.btnPunchIn.setPixmap(getPixMap(cfg.IC_PUNCH_IN))
+        self.btnPunchIn.setCursor(Qt.PointingHandCursor)
+        self.btnPunchIn.setToolTip("Manual Punch-In")
+        self.btnPunchIn.setAlignment(Qt.AlignTop)
+
         self.btnDeleteStudents.setPixmap(getPixMap(cfg.IC_TRASH))
         self.btnDeleteStudents.setCursor(Qt.PointingHandCursor)
         self.btnDeleteStudents.setToolTip("Delete Student")
@@ -146,6 +154,7 @@ class TabStudent(QWidget):
         self.btnNewStudents.mousePressEvent = self.AddNewStudent
         self.btnEditStudents.mousePressEvent = self.EditStudent
         self.btnSubscription.mousePressEvent = self.EditSubscription
+        self.btnPunchIn.mousePressEvent = self.PunchInStudent
         self.btnDeleteStudents.mousePressEvent = self.DeleteStudent
         self.btnSendNotifStudents.mousePressEvent = self.SendNotificationToStudent
 
@@ -338,6 +347,39 @@ class TabStudent(QWidget):
             self.selectAllStatus = True
             for i in range(self.table.rowCount()):
                 self.table.cellWidget(i, 0).setChecked(True)
+
+    def PunchInStudent(self, e):
+        # [('ID-2932-7e24dabd', 'Subhamoy Karmakar'), ('ID-2932-da96eb71', 'Elon TRON Musk')]
+        ids = self.getCheckedRowIDs()
+        if ids.__len__() <= 0:
+            msg = CustomInfoMessageBox()
+            msg.setWindowTitle("Alert!")
+            msg.setText('You will have to select a student to perform this action!')
+            msg.exec_()
+            return
+
+        if ids.__len__() >= 2:
+            msg = CustomInfoMessageBox()
+            msg.setWindowTitle("Alert!")
+            msg.setText('You cannot perform this action on multiple students. Due to security reasons you can only '
+                        'change this one student at a time.')
+            msg.exec_()
+            return
+
+        if self.isConnectedToInternet() != 200:
+            msg = CustomInfoMessageBox()
+            msg.setWindowTitle("Alert!")
+            msg.setText('You are not connected to the internet. Please connect to a network and try again! ')
+            msg.addButton(QMessageBox.Yes)
+            msg.addButton(QMessageBox.No)
+            msg.setDefaultButton(QMessageBox.No)
+            r = msg.exec_()
+            if r == QMessageBox.No:
+                return
+
+        ids = ids[0][0]
+        punchIn = PunchInStudent.PunchInStudent(ids)
+        punchIn.exec_()
 
     # check if connected to the internet
     def isConnectedToInternet(self):

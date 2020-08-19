@@ -133,3 +133,7 @@ IC_SUB_COLOR = './src/icons/ic_sub_color.png'
 IC_REFRESH_COLOR = './src/icons/ic_refresh_color.png'
 IC_DELETE_COLOR = './src/icons/ic_delete_color.png'
 IC_SELECT_ALL = './src/icons/ic_select_all.png'
+IC_PUNCH_IN = './src/icons/ic_punch_in.png'
+
+# NOTIFICATION MESSAGE CUSTOM MSG
+NOTIF_MSG_ATTEND_PREFIX = 'Attend :: '

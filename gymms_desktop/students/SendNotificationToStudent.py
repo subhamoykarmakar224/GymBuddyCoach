@@ -3,14 +3,10 @@ from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 import requests, os, datetime
 
-import Configuration as cfg
 from Helper import *
 from CustomMessageBox import *
 import students.SQLTabStudents as SQLTabStudents
 import students.FBTabStudents as FBTabStudents
-import students.StudentDetails as StudentDetails
-import students.StudentDetailsEdit as StudentDetailsEdit
-import students.SubscriptionControl as SubscriptionControl
 
 
 class SendNotificationToStudent(QDialog):
@@ -190,7 +186,7 @@ class SendNotificationToStudent(QDialog):
         sids = []
         for sid in self.data:
             sids.append(sid)
-        lastIndexVal = sql.getLastNotificationCnt()[0]
+        lastIndexVal = sql.getLastNotificationMsgCnt()[0]
         lastIndexVal = lastIndexVal + 1
         res = 100 / len(self.data)
         inBetweenConnBreak = False
@@ -207,7 +203,7 @@ class SendNotificationToStudent(QDialog):
 
         if not inBetweenConnBreak:
             self.progressBar.setValue(100)
-            sql.sendNotifications(sids, msg)
+            sql.sendNotificationsMsg(sids, msg)
             msg = CustomInfoMessageBox()
             msg.setWindowTitle("Success")
             msg.setText("Notification sent to all students.")
