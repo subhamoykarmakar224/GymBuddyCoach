@@ -13,7 +13,7 @@ import students.StudentDetailsEdit as StudentDetailsEdit
 import students.SubscriptionControl as SubscriptionControl
 import students.SendNotificationToStudent as SendNotificationToStudent
 import students.PunchInStudent as PunchInStudent
-
+import students.ShowAttendenceOfStudent as ShowAttendenceOfStudent
 
 class TabStudent(QWidget):
     def __init__(self):
@@ -43,9 +43,11 @@ class TabStudent(QWidget):
         # Widgets
         self.lblStudents = QLabel("Students List")
         self.lineEdtSearch = QLineEdit()
+        self.comboMembershipStatus = QComboBox()
         self.lblClearIcon = QLabel()
         self.pixMapICClear = QPixmap(cfg.IC_DELETE)
         self.table = QTableWidget()
+        self.btnShowAttendence = QLabel()
         self.btnSelectAll = QLabel()
         self.btnNewStudents = QLabel()
         self.btnEditStudents = QLabel()
@@ -62,8 +64,10 @@ class TabStudent(QWidget):
 
         # Add to Sub Layout
         self.layoutSearch.addWidget(self.lineEdtSearch)
+        self.layoutSearch.addWidget(self.comboMembershipStatus)
         self.layoutSearch.addWidget(self.lblClearIcon)
 
+        self.layoutButtons.addWidget(self.btnShowAttendence)
         self.layoutButtons.addWidget(self.btnSelectAll)
         self.layoutButtons.addWidget(self.btnNewStudents)
         self.layoutButtons.addWidget(self.btnEditStudents)
@@ -96,6 +100,9 @@ class TabStudent(QWidget):
         self.lblClearIcon.setCursor(Qt.PointingHandCursor)
         self.lblClearIcon.setToolTip("Clear Search Term")
 
+        self.comboMembershipStatus.clear()
+        self.comboMembershipStatus.addItems(['All', 'Active', 'Expired'])
+
         # Student List table
         self.columnsHeaders = ['#', 'ID', 'Name', 'Alloted Time', 'Membership Validity', 'Due Amount', 'Status']
         self.table.setColumnCount(self.columnsHeaders.__len__())
@@ -110,6 +117,11 @@ class TabStudent(QWidget):
         self.table.setColumnWidth(3, 300)
         self.table.setColumnWidth(4, 200)
         self.table.cellDoubleClicked.connect(self.onCellDoubleClickAction)
+
+        self.btnShowAttendence.setPixmap(getPixMap(cfg.IC_SHOW_ATTENDENCE))
+        self.btnShowAttendence.setCursor(Qt.PointingHandCursor)
+        self.btnShowAttendence.setToolTip("Show Attendence")
+        self.btnShowAttendence.setAlignment(Qt.AlignTop)
 
         self.btnSelectAll.setPixmap(getPixMap(cfg.IC_SELECT_ALL))
         self.btnSelectAll.setCursor(Qt.PointingHandCursor)
@@ -150,6 +162,7 @@ class TabStudent(QWidget):
         self.refreshStudentsTable()
 
     def setListeners(self):
+        self.btnShowAttendence.mousePressEvent = self.showAttendence
         self.btnSelectAll.mousePressEvent = self.selectAllRows
         self.btnNewStudents.mousePressEvent = self.AddNewStudent
         self.btnEditStudents.mousePressEvent = self.EditStudent
@@ -157,6 +170,9 @@ class TabStudent(QWidget):
         self.btnPunchIn.mousePressEvent = self.PunchInStudent
         self.btnDeleteStudents.mousePressEvent = self.DeleteStudent
         self.btnSendNotifStudents.mousePressEvent = self.SendNotificationToStudent
+        self.lblClearIcon.mousePressEvent = self.clearSearchTermText
+        self.lineEdtSearch.textChanged.connect(self.lineEdtSearchListener)
+        self.comboMembershipStatus.currentIndexChanged.connect(self.comboBoxMembershipStatusChanged)
 
     def refreshStudentsTable(self):
         sqllocal = SQLTabStudents.SQLTabStudents()
@@ -164,6 +180,8 @@ class TabStudent(QWidget):
         self.table.clearContents()
         self.table.setRowCount(len(students))
         for i in range(len(students)):
+            r = self.checkMembershipExpiryStatus(students[i][2])
+
             checkBox = QCheckBox()
             self.table.setCellWidget(i, 0, checkBox)
             self.table.setItem(i, 1, QTableWidgetItem(students[i][0]))
@@ -171,9 +189,28 @@ class TabStudent(QWidget):
             self.table.setItem(i, 3, QTableWidgetItem(students[i][1]))
             self.table.setItem(i, 4, QTableWidgetItem(self.convertSQLDateFormatToCustom(students[i][2])))
             self.table.setItem(i, 5, QTableWidgetItem(students[i][-1]))
-            self.table.setItem(i, 6, QTableWidgetItem(self.regStatus[students[i][6]]))
+            if r == 0:
+                self.table.setItem(i, 6, QTableWidgetItem('Expired'))
+                self.table.item(i, 6).setBackground(QColor(255, 0, 0))
+            else:
+                self.table.setItem(i, 6, QTableWidgetItem('Active'))
+            # self.table.setItem(i, 6, QTableWidgetItem(self.regStatus[students[i][6]]))
 
         del sqllocal
+
+    def checkMembershipExpiryStatus(self, d):
+        d = d.split('-')
+        expiredate = datetime.date(
+            int(d[0]), int(d[1]), int(d[2])
+        )
+        # n = datetime.da
+        nowdate = datetime.date.today()
+        datediff = expiredate - nowdate
+        datediff = str(datediff)
+        datediff = int(datediff[:datediff.index('day')].strip(' '))
+        if datediff <= 0:
+            return 0
+        return 1
 
     # Add New Students
     def AddNewStudent(self, e):
@@ -315,13 +352,36 @@ class TabStudent(QWidget):
             if r == QMessageBox.No:
                 return
 
-        # [('ID-2932-5d8d6b34', 'Test 1 '), ('ID-2932-7e24dabd', 'Subhamoy Karmakar'), ('ID-2932-da96eb71', 'Elon TRON Musk')]
+        # [('ID-2932-5d8d6b34', 'Test 1 '), ('ID-2932-7e24dabd', 'Subhamoy Karmakar'),
+        # ('ID-2932-da96eb71', 'Elon TRON Musk')]
         ids = self.getCheckedRowIDs()
         notif = SendNotificationToStudent.SendNotificationToStudent(ids)
         notif.exec_()
 
+    # show attendence of a student
+    def showAttendence(self, e):
+        ids = self.getCheckedRowIDs()
+        if ids.__len__() != 1:
+            msg = CustomInfoMessageBox()
+            msg.setWindowTitle("Alert!")
+            if ids.__len__() <= 0:
+                msg.setText('You will have to select at least one student to perform delete action. You can double click '
+                            'on a row or, check the checkbox on the left most column in the table to select the '
+                            'student(s).')
+            else:
+                msg.setText(
+                    'You can select atmost one student to perform this action. Please select a '
+                    'single student to continue!')
+            msg.exec_()
+            return
+        attend = ShowAttendenceOfStudent.ShowAttendenceOfStudent(ids[0][0], ids[0][1])
+        attend.exec_()
+
     # change the checkbox state on double click
     def onCellDoubleClickAction(self, r, c):
+        if self.table.item(r, 1) is None:
+            return
+
         if not self.table.cellWidget(r, 0).isChecked():
             self.table.cellWidget(r, 0).setChecked(True)
         else:
@@ -331,10 +391,14 @@ class TabStudent(QWidget):
     def getCheckedRowIDs(self):
         sid = []
         for i in range(self.table.rowCount()):
+            if self.table.item(i, 1) is None:
+                continue
+
             if self.table.cellWidget(i, 0).isChecked():
                 sid.append((self.table.item(i, 1).text(), self.table.item(i, 2).text()))
             else:
                 pass
+
         return sid
 
     # Select/Deselect all
@@ -342,10 +406,14 @@ class TabStudent(QWidget):
         if self.selectAllStatus:
             self.selectAllStatus = False
             for i in range(self.table.rowCount()):
+                if self.table.item(i, 1) is None:
+                    continue
                 self.table.cellWidget(i, 0).setChecked(False)
         else:
             self.selectAllStatus = True
             for i in range(self.table.rowCount()):
+                if self.table.item(i, 1) is None:
+                    continue
                 self.table.cellWidget(i, 0).setChecked(True)
 
     def PunchInStudent(self, e):
@@ -380,6 +448,119 @@ class TabStudent(QWidget):
         ids = ids[0][0]
         punchIn = PunchInStudent.PunchInStudent(ids)
         punchIn.exec_()
+
+    def lineEdtSearchListener(self):
+        membershipValidity = self.comboMembershipStatus.currentText().__str__()
+        sqllocal = SQLTabStudents.SQLTabStudents()
+        searchTerm = self.lineEdtSearch.text().__str__()
+
+        students = sqllocal.searchTermQuery(searchTerm)
+        self.table.clearContents()
+        # self.table.setRowCount(0)
+        self.table.setRowCount(len(students))
+        cnt = 0
+        for i in range(len(students)):
+            r = self.checkMembershipExpiryStatus(students[i][2])
+            if membershipValidity == 'All':
+                # self.table.insertRow(cnt+1)
+                checkBox = QCheckBox()
+                self.table.setCellWidget(cnt, 0, checkBox)
+                self.table.setItem(cnt, 1, QTableWidgetItem(students[i][0]))
+                self.table.setItem(cnt, 2, QTableWidgetItem(students[i][5]))
+                self.table.setItem(cnt, 3, QTableWidgetItem(students[i][1]))
+                self.table.setItem(cnt, 4, QTableWidgetItem(self.convertSQLDateFormatToCustom(students[i][2])))
+                self.table.setItem(cnt, 5, QTableWidgetItem(students[i][-1]))
+
+                if r == 0:
+                    self.table.setItem(cnt, 6, QTableWidgetItem('Expired'))
+                    self.table.item(cnt, 6).setBackground(QColor(255, 0, 0))
+                else:
+                    self.table.setItem(cnt, 6, QTableWidgetItem('Active'))
+                cnt += 1
+            elif membershipValidity == 'Active' and r != 0:
+                # self.table.insertRow(cnt+1)
+                checkBox = QCheckBox()
+                self.table.setCellWidget(cnt, 0, checkBox)
+                self.table.setItem(cnt, 1, QTableWidgetItem(students[i][0]))
+                self.table.setItem(cnt, 2, QTableWidgetItem(students[i][5]))
+                self.table.setItem(cnt, 3, QTableWidgetItem(students[i][1]))
+                self.table.setItem(cnt, 4, QTableWidgetItem(self.convertSQLDateFormatToCustom(students[i][2])))
+                self.table.setItem(cnt, 5, QTableWidgetItem(students[i][-1]))
+                self.table.setItem(cnt, 6, QTableWidgetItem('Active'))
+                cnt += 1
+            elif membershipValidity == 'Expired' and r == 0:
+                # self.table.insertRow(cnt+1)
+                checkBox = QCheckBox()
+                self.table.setCellWidget(cnt, 0, checkBox)
+                self.table.setItem(cnt, 1, QTableWidgetItem(students[i][0]))
+                self.table.setItem(cnt, 2, QTableWidgetItem(students[i][5]))
+                self.table.setItem(cnt, 3, QTableWidgetItem(students[i][1]))
+                self.table.setItem(cnt, 4, QTableWidgetItem(self.convertSQLDateFormatToCustom(students[i][2])))
+                self.table.setItem(cnt, 5, QTableWidgetItem(students[i][-1]))
+                self.table.setItem(cnt, 6, QTableWidgetItem('Expired'))
+                self.table.item(cnt, 6).setBackground(QColor(255, 0, 0))
+                cnt += 1
+
+    def comboBoxMembershipStatusChanged(self):
+        sqllocal = SQLTabStudents.SQLTabStudents()
+        searchTerm = self.lineEdtSearch.text().__str__()
+        students = sqllocal.searchTermQuery(searchTerm)
+        self.table.clearContents()
+        self.table.setRowCount(len(students))
+        cnt = 0
+        if self.comboMembershipStatus.currentText() == 'All':
+            for i in range(len(students)):
+                r = self.checkMembershipExpiryStatus(students[i][2])
+                # self.table.insertRow(1)
+                checkBox = QCheckBox()
+                self.table.setCellWidget(i, 0, checkBox)
+                self.table.setItem(i, 1, QTableWidgetItem(students[i][0]))
+                self.table.setItem(i, 2, QTableWidgetItem(students[i][5]))
+                self.table.setItem(i, 3, QTableWidgetItem(students[i][1]))
+                self.table.setItem(i, 4, QTableWidgetItem(self.convertSQLDateFormatToCustom(students[i][2])))
+                self.table.setItem(i, 5, QTableWidgetItem(students[i][-1]))
+                if r == 0:
+                    self.table.setItem(i, 6, QTableWidgetItem('Expired'))
+                    self.table.item(i, 6).setBackground(QColor(255, 0, 0))
+                else:
+                    self.table.setItem(i, 6, QTableWidgetItem('Active'))
+        elif self.comboMembershipStatus.currentText() == 'Active':
+            for i in range(len(students)):
+                r = self.checkMembershipExpiryStatus(students[i][2])
+                if r == 0:
+                    continue
+                # self.table.insertRow(1)
+                checkBox = QCheckBox()
+                self.table.setCellWidget(cnt, 0, checkBox)
+                self.table.setItem(cnt, 1, QTableWidgetItem(students[i][0]))
+                self.table.setItem(cnt, 2, QTableWidgetItem(students[i][5]))
+                self.table.setItem(cnt, 3, QTableWidgetItem(students[i][1]))
+                self.table.setItem(cnt, 4, QTableWidgetItem(self.convertSQLDateFormatToCustom(students[i][2])))
+                self.table.setItem(cnt, 5, QTableWidgetItem(students[i][-1]))
+                self.table.setItem(cnt, 6, QTableWidgetItem('Active'))
+                cnt += 1
+
+        elif self.comboMembershipStatus.currentText() == 'Expired':
+            for i in range(len(students)):
+                r = self.checkMembershipExpiryStatus(students[i][2])
+                if r != 0:
+                    continue
+                # self.table.insertRow(1)
+                checkBox = QCheckBox()
+                self.table.setCellWidget(cnt, 0, checkBox)
+                self.table.setItem(cnt, 1, QTableWidgetItem(students[i][0]))
+                self.table.setItem(cnt, 2, QTableWidgetItem(students[i][5]))
+                self.table.setItem(cnt, 3, QTableWidgetItem(students[i][1]))
+                self.table.setItem(cnt, 4, QTableWidgetItem(self.convertSQLDateFormatToCustom(students[i][2])))
+                self.table.setItem(cnt, 5, QTableWidgetItem(students[i][-1]))
+                self.table.setItem(cnt, 6, QTableWidgetItem('Expired'))
+                self.table.item(cnt, 6).setBackground(QColor(255, 0, 0))
+                cnt += 1
+
+    def clearSearchTermText(self, e):
+        self.lineEdtSearch.clear()
+        self.comboMembershipStatus.setCurrentIndex(0)
+        self.refreshStudentsTable()
 
     # check if connected to the internet
     def isConnectedToInternet(self):

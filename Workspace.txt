@@ -47,3 +47,39 @@ msg: "Student tried to access when not alloted."
 studentId: "ID-2932-1"
 
 -----------------------------------------------------------------------------------------
+
+{
+'gymId': 'BodyShapersGym-2932', 
+'gymName': 'Body Shapers Gym', 
+'adminName': 'Modi', 
+'phone': '+919876543210', 
+'validity': '31-09-2020', 
+'username': 'mods'
+}
+
+{
+'-MDtiKTGHqOz4RobYjlq': {'dateTime': 'Tue Aug 04 19:16:38 GMT+05:30 2020', 'gymId': 'BodyShapersGym-2932', 'level': 'RED', 'msg': 'Student tried to access when not alloted.', 'studentId': 'ID-2932-1'}, 
+
+'-MDtk6X6CPMgCnb28bfD': {'dateTime': 'Tue Aug 04 19:24:26 GMT+05:30 2020', 'gymId': 'BodyShapersGym-2932', 'level': 'RED', 'msg': 'Student tried to access when not alloted.', 'studentId': 'ID-2932-1'}, 
+
+'-MDtk7XJUHVlLj8n25sj': {'dateTime': 'Tue Aug 04 19:24:30 GMT+05:30 2020', 'gymId': 'BodyShapersGym-2932', 'level': 'RED', 'msg': 'Student tried to access when not alloted.', 'studentId': 'ID-2932-1'}, 
+
+'-MDtk8AQguoFUDwHVqeM': {'dateTime': 'Tue Aug 04 19:24:32 GMT+05:30 2020', 'gymId': 'BodyShapersGym-2932', 'level': 'RED', 'msg': 'Student tried to access when not alloted.', 'studentId': 'ID-2932-1'}, 
+
+'-MDtk9RXubE_cZODCXdZ': {'dateTime': 'Tue Aug 04 19:24:37 GMT+05:30 2020', 'gymId': 'BodyShapersGym-2932', 'level': 'RED', 'msg': 'Student tried to access when not alloted.', 'studentId': 'ID-2932-1'}, 
+
+'-MDtnEUAh-vG26INPWVm': {'dateTime': 'Tue Aug 04 19:38:04 GMT+05:30 2020', 'gymId': 'BodyShapersGym-2932', 'level': 'RED', 'msg': 'Student tried to access when not alloted.', 'studentId': 'ID-2932-1'}, 
+
+'-MDxZthcBB8KtsAFF-Yc': {'dateTime': 'Wed Aug 05 13:13:54 GMT+05:30 2020', 'gymId': 'BodyShapersGym-2932', 'level': 'RED', 'msg': 'Student tried to access when not alloted.', 'studentId': 'ID-2932-1'}, 
+
+'-MF5hlu70Ulzt7EL3GYq': {'dateTime': 'Wed Aug 19 18:04:56 GMT+05:30 2020', 'gymId': 'BodyShapersGym-2932', 'level': 'GREEN', 'msg': 'Student entered the gym.', 'studentId': 'ID-2932-7e24dabd'}, '-MFLjkV-MzDP51iphFjQ': {'dateTime': 'Sat Aug 22 20:47:32 GMT+05:30 2020', 'gymId': 'BodyShapersGym-2932', 'level': 'GREEN', 'msg': 'Student entered the gym.', 'studentId': 'ID-2932-7e24dabd'}, 
+
+'-MFfVPfR3ZziheoRvGan': {'dateTime': 'Wed Aug 26 21:32:32 GMT+05:30 2020', 'gymId': 'BodyShapersGym-2932', 'level': 'GREEN', 'msg': 'Student entered the gym.', 'studentId': 'ID-2932-7e24dabd'}
+
+}
+
+-------------------------------------------
+
+"2020-08-27 14:05:26.852744"
+to,
+Thu Aug 27 09:30:31 GMT+05:30 2020

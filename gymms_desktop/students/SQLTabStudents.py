@@ -229,7 +229,61 @@ class SQLTabStudents:
         if self.isConnectedToInternet() != 200:
             pass
 
+    def getCheckedInStatus(self, sid, d):
+        q = 'select count(*) from ' + cfg.TABLE_ATTENDENCE + ' where ' + \
+            cfg.KEY_ATTENDENCE_SID + '="' + sid + '" and ' + cfg.KEY_ATTENDENCE_DATE + '=STR_TO_DATE("' + \
+            d + '", "%d-%m-%Y")'
+        res = 0
+        try:
+            self.cur.execute(q)
+            res = self.cur.fetchone()
+        except Exception as e:
+            print("SQLTabNotification.getIsAttendencePresent() :: ERROR :: " + str(e))
 
+        return res[0]
+
+    def getAllCustomMessage(self):
+        q = 'select *from ' + cfg.TABLE_CUSTOM_MESSAGE
+        res = []
+        try:
+            self.cur.execute(q)
+            res = self.cur.fetchall()
+        except Exception as e:
+            print("SQLTabNotification.getIsAttendencePresent() :: ERROR :: " + str(e))
+
+        return res
+
+    def searchTermQuery(self, term):
+        month = {
+            'January': '01', 'February': '02', 'March': '03', 'April': '04', 'May': '05',
+            'June': '06', 'July': '07', 'August': '08', 'September': '09', 'October': '10',
+            'November': '11', 'December': '12'
+        }
+
+        q = 'select * from ' + cfg.TABLE_STUDENTS + ' where ' + cfg.KEY_STUDENTS_SID + ' like "%' + term + '%" or ' + \
+            cfg.KEY_STUDENTS_NAME + ' like "%' + term + '%"'
+        res = []
+        try:
+            self.cur.execute(q)
+            res = self.cur.fetchall()
+        except Exception as e:
+            print("SQLTabStudents.getAllStudents() :: ERROR :: " + str(e))
+
+        return res
+
+    def getAttendanceForAMonth(self, sid, month, year, lastDate):
+        d1 = year + '-' + month + '-01'
+        d2 = year + '-' + month + '-' + lastDate
+        q = 'select * from ' + cfg.TABLE_ATTENDENCE + ' where SID="' + sid + \
+            '" and datestamp like "' + year + '-' + month + '-%" order by datestamp asc'
+        res = []
+        try:
+            self.cur.execute(q)
+            res = self.cur.fetchall()
+        except Exception as e:
+            print("SQLTabStudents.getAttendanceForAMonth() :: ERROR :: " + str(e))
+
+        return res
 
     # check if connected to the internet
     def isConnectedToInternet(self):

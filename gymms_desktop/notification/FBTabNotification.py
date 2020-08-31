@@ -1,6 +1,6 @@
 import students.SQLTabStudents as SQLTabStudents
 import Configuration as cfg
-import pyrebase, datetime, pytz, time
+import pyrebase
 
 
 def getFBDB():
@@ -13,15 +13,16 @@ def getSQLDB():
 
 
 # Get all students data into Firebase
-def getAllStudentsData(gymID):
-    data = []
+def getAllNotification(gymID):
+    data = {}
     db = getFBDB()
-    res = db.child(cfg.FB_TABLE_STUDENTS).child(gymID).get()
+    res = db.child(cfg.FB_TABLE_NOTIFICATION).child(gymID).get()
     if res.each().__len__() == 0:
-        data = []
+        data = {}
     else:
         for r in res.each():
-            data.append(r.val())
+            data[r.key()] = r.val()
+
     return data
 
 
@@ -97,51 +98,36 @@ def sendNotification(indx, sid, msg, gymId):
     return 1
 
 
-def uploadAttendenceNotification(gymId, sid, d, starttime):
-    # print(gymId, sid, d, starttime) # BodyShapersGym-2932 ID-2932-7e24dabd Attend :: 12-08-2020 :: 1 3:54 PM
-    # data = {
-    #     'dateTime': "Thu Aug 27 09:30:31 GMT+05:30 2020",
-    #     'gymId': "BodyShapersGym-2932",
-    #     'level': "GREEN",
-    #     'msg': "Student entered the gym.",
-    #     'studentId': "ID-2932-7e24dabd"
-    # }
-
+def insertAttendence(gymid, sid, d, t):
     data = {
-        'dateTime': getNowDateTimetoCustomFormat(d.split(" :: ")[1], starttime),
-        'gymId': gymId,
-        'level': "GREEN",
-        'msg': "Student entered the gym.",
-        'studentId': sid
+        cfg.FB_KEY_ATTENDENCE_DATE: d,
+        cfg.FB_KEY_ATTENDENCE_TIME: t
     }
     fbdb = getFBDB()
-    fbdb.child('Notification').child(gymId).push(data)
+    try:
+        fbdb.child(cfg.FB_TABLE_ATTENDENCE).child(gymid).child(sid).child(d).set(data)
+    except Exception as e:
+        return 0
+    try:
+        del fbdb
+    except:
+        print('')
+
+    return 1
 
 
-def getNowDateTimetoCustomFormat(d, t):
-    d = d.split("-")
-    d = [int(i) for i in d]
-    strt = time.strptime(t, '%I:%M %p')
-    t = time.strftime('%H:%M', strt)
-    t = t.split(':')
-    t = [int(j) for j in t]
+def deleteNotification(gymid, notifid):
+    fbdb = getFBDB()
+    try:
+        fbdb.child(cfg.FB_TABLE_NOTIFICATION).child(gymid).child(notifid).remove()
+    except Exception as e:
+        return 0
 
-    now = datetime.datetime.now(pytz.timezone('Asia/Kolkata'))
-    gmtdiff = now.strftime('%z')
-    gmtdiff = 'GMT' + gmtdiff[0:3] + ':' + gmtdiff[3:]
-
-    regex = '%a %b %d %H:%M:%S %Y'
-    res = datetime.datetime(
-        d[2], d[1], d[0], t[0], t[1]
-    ).strftime(regex)
-    res = res.split(' ')
-    finalRes = ' '.join(res[:len(res) - 1]) + ' ' + gmtdiff + ' ' +res[-1]
-    return finalRes
+    return 1
 
 
 # if __name__ == '__main__':
-#     uploadAttendenceNotification("BodyShapersGym-2932", "ID-2932-7e24dabd", "Attend :: 12-08-2020 :: 1", "3:54 PM")
-#     convertDateTimetoCustomFormat()
+#     insertAttendence("BodyShapersGym-2932", "ID-2932-7e24dabd", "15-02-2020", "15:23")
 #     insertStudent({
 # 'SID': 'ID-2932-7c2eefa6',
 # 'allotedtime': '03:00 PM to 04:30 PM',

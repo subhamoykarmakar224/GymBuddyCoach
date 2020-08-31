@@ -98,7 +98,6 @@ class SendNotificationToStudent(QDialog):
         self.messageTextArea.textChanged.connect(self.wordCounter)
         self.btnCancel.clicked.connect(self.closeMessage)
         self.btnSend.clicked.connect(self.sendMessage)
-        self.btnLoadMsgTemplate.clicked.connect(self.loadMshNotifFromTemplate)
 
     def refreshTable(self):
         self.table.clearContents()
@@ -180,7 +179,7 @@ class SendNotificationToStudent(QDialog):
         sql = SQLTabStudents.SQLTabStudents()
         gymid = sql.getGymId()
         msg = self.messageTextArea.toPlainText().__str__()
-        # [('ID-2932-5d8d6b34', 'Test 1 '),c
+        # [('ID-2932-5d8d6b34', 'Test 1 '),
         # ('ID-2932-7e24dabd', 'Subhamoy Karmakar'),
         # ('ID-2932-da96eb71', 'Elon TRON Musk')]
         # Hello!
@@ -217,62 +216,3 @@ class SendNotificationToStudent(QDialog):
             msg.setWindowTitle("Failure")
             msg.setText("Please check your internet connection and try again.")
             msg.exec_()
-
-    def loadMshNotifFromTemplate(self):
-        self.dialogMsgTemplete = QDialog()
-        self.dialogMsgTemplete.setWindowIcon(QIcon(cfg.TITLEBAR_ICON_URL))
-        self.dialogMsgTemplete.setFixedHeight(400)
-        self.dialogMsgTemplete.setFixedWidth(700)
-        self.dialogMsgTemplete.setWindowTitle("Custom Message Template")
-
-        grid = QGridLayout()
-
-        self.msgKeylist = QListWidget()
-        self.msgKeylist.setFixedWidth(150)
-        self.msg = QTextEdit()
-        self.msg.setPlaceholderText("Select message key list from left list to show message.")
-        self.msg.setReadOnly(True)
-        btnSelect = QPushButton('Select')
-        # btnSelect.setFixedWidth(100)
-
-        grid.addWidget(QLabel('Message Key'), 0, 0)
-        grid.addWidget(self.msgKeylist, 1, 0)
-        grid.addWidget(QLabel('Message'), 0, 1)
-        grid.addWidget(self.msg, 1, 1)
-        grid.addWidget(btnSelect, 2, 0, 1, 2)
-
-        sql = SQLTabStudents.SQLTabStudents()
-        data = sql.getAllCustomMessage()
-        self.customMessage= {}
-        for d in data:
-            self.customMessage[d[0]] = d[1]
-
-        self.msgKeylist.clear()
-        self.msgKeylist.addItems(self.customMessage.keys())
-
-        self.msgKeylist.itemClicked.connect(self.loadTheCustomMessage)
-        btnSelect.clicked.connect(self.loadTheCustomMessageToBox)
-
-        self.dialogMsgTemplete.setLayout(grid)
-
-        self.dialogMsgTemplete.exec_()
-
-    def loadTheCustomMessage(self):
-        self.msg.setPlainText("")
-        self.msg.setPlainText(self.customMessage[self.msgKeylist.currentItem().text()])
-
-    def loadTheCustomMessageToBox(self):
-        self.messageTextArea.setPlainText('')
-        self.messageTextArea.setPlainText(
-            self.msg.toPlainText().__str__()
-        )
-        self.dialogMsgTemplete.close()
-
-    # check if connected to the internet
-    def isConnectedToInternet(self):
-        url = 'https://www.google.com/'
-        try:
-            res = requests.get(url, verify=False, timeout=10)
-        except Exception as e:
-            return str(e)
-        return res.status_code

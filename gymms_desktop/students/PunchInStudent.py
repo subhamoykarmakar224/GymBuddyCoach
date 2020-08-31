@@ -175,6 +175,16 @@ class PunchInStudent(QDialog):
     # Save Student
     def saveStudent(self):
         status = self.validateFields()
+
+        sqllocal = SQLTabStudents.SQLTabStudents()
+        # if sqllocal.getCheckedInStatus(self.sid, self.datePickerPunchInDate.date().toString('%Y-%m-%d')) >= 1:
+        if sqllocal.getCheckedInStatus(self.sid, self.convertToSQLDateFormat(self.datePickerPunchInDate.text())) >= 1:
+            msg = CustomInfoMessageBox()
+            msg.setWindowTitle("Info")
+            msg.setText("The student is already punched in for the selected date.")
+            msg.exec_()
+            return
+
         if not status:
             return
 
@@ -184,14 +194,17 @@ class PunchInStudent(QDialog):
         counter = sql.getLastNotificationMsgCnt()[0]
 
         tmpDate = self.convertToSQLDateFormat(self.datePickerPunchInDate.text().__str__().strip(" "))
+        # Attend :: 27-08-2020 :: 1
         tmpDate = cfg.NOTIF_MSG_ATTEND_PREFIX + tmpDate + " :: " + "1"
 
-        # TODO :: Send Green Notification
 
 
-        # TODO :: Notification Msg
         sql.sendNotificationsMsg([(self.sid, "")], tmpDate)
         fb.sendNotification(counter + 1, (self.sid, ""), tmpDate, gymId)
+        fb.uploadAttendenceNotification(
+            gymId, self.sid, tmpDate,
+            str(self.startTimePicker.text())
+        )
 
         msg = CustomInfoMessageBox()
         msg.setWindowTitle("Saved")

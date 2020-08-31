@@ -14,7 +14,9 @@ dueamount varchar(100) default "0"
 create table Notification(
 notifId varchar(100) primary key,
 studentId varchar(100), 
-dateTime varchar(100),
+stamp varchar(100),
+datestamp date,
+timeStmp time,
 level varchar(10),
 msg text
 );
@@ -29,6 +31,13 @@ validity varchar(100),
 username varchar(100),
 passwd text,
 loginstatus int
+);
+
+create table Attendence(
+SID varchar(100),
+datestamp date,
+timeStmp time,
+uploadstatus varchar(10) default "0"
 );
 
 create table localaction(
@@ -50,12 +59,21 @@ message text,
 foreign key (SID) references Students(SID)
 );
 
+create table CustomMessage(
+msgId varchar(100) primary key,
+message text
+); 
+
+create table cdkey(
+cdk varchar(100) primary key
+);
+
 drop table if exists GymAdmin;
 drop table if exists Students;
 drop table if exists Notification;
 drop table if exists localaction;
 drop table if exists msgnotif;
-
+drop table Attendence;
 
 
 

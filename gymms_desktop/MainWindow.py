@@ -1,29 +1,31 @@
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
-import requests, sys, os
+import requests, sys, os, time, datetime
+
 from Helper import *
 import Configuration as cfg
 import accesscontrol.LoginScreenSQL as LoginScreenSQL
 import accesscontrol.LoginScreenFB as LoginScreenFB
-
-
 import accesscontrol.LoginScreen as loginscreen
 import sync.AutoSync as autosync
 import home.TabHome as tabhome
 import students.TabStudent as tabstudent
 import notification.TabNotification as tabontif
 import settings.TabSettings as tabsettings
-# import contactus.TabContactUs as tabcontactus
-# import update.TabVersionControl as tabversioncontrol
 from CustomMessageBox import *
+import home.FBTabHome as FBTabHome
+import home.SQLTabHome as SQLTabHome
 
 
 class MainWindowApplication(QMainWindow):
-    def __init__(self):
+    def __init__(self, tray):
         super(MainWindowApplication, self).__init__()
         self.phone = ""
-
+        self.tray = tray
+        self.thread = ThreadLiveSoftwareDataControl(self.tray)
+        self.thread.force_logout.connect(self.forceLogOutToExtendMembership)
+        self.thread.start()
         loginStatus = -1
         lastUserLoginStatus = self.checkLastUserLoginStatus()
         if not lastUserLoginStatus:
@@ -79,6 +81,8 @@ class MainWindowApplication(QMainWindow):
         msg.exec_()
 
     def initUi(self):
+        self.showCustomNotification("Welcome!", "Welcome to GYMMS.", 400)
+        self.showSplashScreen()
         f = open(cfg.TMP_FILE_URL, "r")
         ph = f.read().strip("\n")
 
@@ -119,9 +123,9 @@ class MainWindowApplication(QMainWindow):
         self.layoutSubTitle.addWidget(self.lblUserName)
         self.layoutSubTitle.addWidget(self.btnLogout)
 
-        tabGroup.addTab(tabstudent.TabStudent(), self.tabsTitle[1])
         tabGroup.addTab(tabhome.TabHome(), self.tabsTitle[0])
-        tabGroup.addTab(tabontif.TabNotification(), self.tabsTitle[2])
+        tabGroup.addTab(tabstudent.TabStudent(), self.tabsTitle[1])
+        tabGroup.addTab(tabontif.TabNotification(self.tray), self.tabsTitle[2])
         tabGroup.addTab(tabsettings.TabSettings(), self.tabsTitle[3])
 
         vLayout.addLayout(self.layoutSubTitle)
@@ -154,13 +158,15 @@ class MainWindowApplication(QMainWindow):
         res_db = s.getLoginStatus(ph)
 
         f = LoginScreenFB.LoginScreenFB()
-        res_fb = f.getGymMetaData(ph)
+        try:
+            res_fb = f.getGymMetaData(ph)
+            if res_fb == {}:
+                self.forceLogOut()
+        except Exception as e:
+            print('Error : MainWindow().checkLastUserLoginStatus :: ' + str(e))
 
-        if res_fb == {}:
-            self.forceLogOut()
-        else:
-            if res_db == 1:
-                return True
+        if res_db == 1:
+            return True
         return False
 
     def logoutCurrentUser(self, e):
@@ -190,10 +196,9 @@ class MainWindowApplication(QMainWindow):
             if os.path.isfile(cfg.TMP_FILE_URL):
                 os.remove(cfg.TMP_FILE_URL)
 
-
             s.updateAdminLoginStatus(0)
             self.close()
-            MainWindowApplication()
+            MainWindowApplication(self.tray)
         else:
             return
 
@@ -212,4 +217,109 @@ class MainWindowApplication(QMainWindow):
         MainWindowApplication()
         return
 
+    # Custom notification
+    def showCustomNotification(self, title, msg, time):
+        if time == -1:
+            self.tray.showMessage(
+                title, msg, QIcon(cfg.TITLEBAR_ICON_URL)
+            )
+        else:
+            self.tray.showMessage(
+                title, msg, QIcon(cfg.TITLEBAR_ICON_URL),
+                time
+            )
 
+    def showSplashScreen(self):
+        splash_pix = QPixmap(cfg.SPLASH_SCREEN_URL)
+        # splash_pix.scaled(400, 300) # Default - 800 * 600
+        self.splash = QSplashScreen(splash_pix.scaled(800, 600), Qt.WindowStaysOnTopHint)
+        self.splash.mousePressEvent = self.splashClicked
+        # TODO : Uncomment this
+        # self.splash.show()
+
+    def splashClicked(self, e):
+        self.splash.close()
+
+    def forceLogOutToExtendMembership(self, days):
+        m = CustomCriticalMessageBox()
+        m.setWindowTitle('Alert!')
+        msg = ''
+        if days == 0:
+            msg = 'Your membership will expire tomorrow. To continue using this application please ' \
+                  'update payment with your vendor.'
+            m.setText(msg)
+            m.exec_()
+        elif 1 <= days <= 5:
+            msg = 'Your membership is about to expire in ' + str(days) + ' days. To continue using this application please ' \
+                  'update payment with your vendor.'
+            m.setText(msg)
+            m.exec_()
+        elif days < 0:
+            msg = 'Your membership has expired please update vendor payment to continue using services.'
+            m.setText(msg)
+            reply = m.exec_()
+            if reply == QMessageBox.Ok:
+                self.close()
+
+
+# LIVE MainWindow Thread SYSTEM
+class ThreadLiveSoftwareDataControl(QThread):
+    force_logout = pyqtSignal(int)
+
+    def __init__(self, tray):
+        super(ThreadLiveSoftwareDataControl, self).__init__()
+        self.tray = tray
+
+    def run(self):
+        fb = FBTabHome
+        sql = SQLTabHome.SQLTabHome()
+        gymid = sql.getGymId()
+        while True:
+            if self.isConnectedToInternet() != 200:
+                print('TabHome().Thread() - Not Connected to internet!')
+                format = '%Y-%m-%d %H:%M:%S'
+                d = sql.getSoftwareValidityDate()
+                d = datetime.datetime.strptime(d + ' 00:00:01', format)
+
+                n = str(datetime.date.today())
+                currentTime = datetime.datetime.strptime(n + ' 00:00:01', format)
+                diff = (d - currentTime).days
+                self.force_logout.emit(int(diff))
+                time.sleep(20 * 60)
+                continue
+
+            print('TabHome().Thread() - Connected to internet!')
+
+            currentTime = sql.getSoftwareValidityDate()
+            gymAdminAData = fb.getOnlineValidity(gymid)
+
+            if str(currentTime) != str(gymAdminAData[cfg.FB_KEY_ADMIN_VALIDITY]):
+                sql.updateSoftwareValidityDate(gymAdminAData[cfg.FB_KEY_ADMIN_VALIDITY])
+
+            sql.updateCompleteAdminData(gymAdminAData)
+
+            format = '%Y-%m-%d %H:%M:%S'
+            d = sql.getSoftwareValidityDate()
+            d = datetime.datetime.strptime(d + ' 00:00:01', format)
+
+            n = str(datetime.date.today())
+            currentTime = datetime.datetime.strptime(n + ' 00:00:01', format)
+            diff = (d - currentTime).days
+            self.force_logout.emit(int(diff))
+
+            time.sleep(60 * 60)
+
+    def convertToSQLDateFormat(self, s):
+        inFormat = '%d %B, %Y'
+        sqlFormat = '%Y-%m-%d'
+        s = datetime.datetime.strptime(s, inFormat).strftime(sqlFormat)
+        return s
+
+    # check if connected to the internet
+    def isConnectedToInternet(self):
+        url = 'https://www.google.com/'
+        try:
+            res = requests.get(url, verify=False, timeout=10)
+        except Exception as e:
+            return str(e)
+        return res.status_code

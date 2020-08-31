@@ -2,6 +2,7 @@
 APP_NAME = "GYMMS"
 APP_DIM_WIDTH = "1280"
 APP_DIM_HEIGHT = "720"
+QR_CODE_URL = "./tmp/photo/gym.png"
 
 # COLORS
 bg_dark = "#222831"
@@ -30,9 +31,17 @@ KEY_STUDENTS_DUE = 'dueamount'
 TABLE_NOTIFICATION = 'Notification'
 KEY_NOTIFICATION_NID = 'notifId'
 KEY_NOTIFICATION_SID = 'studentId'
-KEY_NOTIFICATION_DATETIME = 'dateTime'
+KEY_NOTIFICATION_DATETIME = 'stamp'
+KEY_NOTIFICATION_DATE = 'datestamp'
+KEY_NOTIFICATION_TIME = 'timestmp'
 KEY_NOTIFICATION_LEVEL = 'level'
 KEY_NOTIFICATION_MSG = 'msg'
+
+TABLE_ATTENDENCE = 'Attendence'
+KEY_ATTENDENCE_SID = 'SID'
+KEY_ATTENDENCE_DATE = 'datestamp'
+KEY_ATTENDENCE_TIME = 'timeStmp'
+KEY_ATTENDENCE_UPLOAD_STATUS = 'uploadstatus'
 
 TABLE_ADMIN = 'GymAdmin'
 KEY_ADMIN_ID = 'gymId'
@@ -55,11 +64,20 @@ TABLE_SOFTWARE_FLAG = 'softwareflags'
 KEY_SOFTWARE_FLAG_NAME = 'flagname'
 KEY_SOFTWARE_FLAG_STATUS = 'status'
 CONST_SOFTWARE_FLAG_FIRST_INSTALL_STUDENTS = 'firstinstallstudent'
+CONST_SOFTWARE_FLAG_SOFTWARE_KEY = 'softwarekuidvalid'
+
+TABLE_CDKEY = 'cdkey'
+KEY_CDKEY_KEY = 'cdk'
+
 
 TABLE_MSG_NOTIF = 'msgnotif'
 KEY_MSG_NOTIF_CNT = 'msgcounter'
 KEY_MSG_NOTIF_SID = 'SID'
 KEY_MSG_NOTIF_MSG = 'message'
+
+TABLE_CUSTOM_MESSAGE = 'CustomMessage'
+KEY_CUSTOM_MESSAGE_ID = 'msgId'
+KEY_CUSTOM_MESSAGE = 'message'
 
 # FIREBASE
 # FB_DB_URL = 'https://gymbuddyall.firebaseio.com/'
@@ -92,6 +110,11 @@ FB_KEY_NOTIFICATION_SID = 'studentId'
 FB_KEY_NOTIFICATION_DATETIME = 'dateTime'
 FB_KEY_NOTIFICATION_LEVEL = 'level'
 FB_KEY_NOTIFICATION_MSG = 'msg'
+
+FB_TABLE_ATTENDENCE = 'Attendence'
+FB_KEY_ATTENDENCE_SID = 'SID'
+FB_KEY_ATTENDENCE_DATE = 'datestamp'
+FB_KEY_ATTENDENCE_TIME = 'timeStmp'
 
 FB_TABLE_ADMIN = 'GymAdmin'
 FB_KEY_ADMIN_ID = 'gymId'
@@ -134,6 +157,7 @@ IC_REFRESH_COLOR = './src/icons/ic_refresh_color.png'
 IC_DELETE_COLOR = './src/icons/ic_delete_color.png'
 IC_SELECT_ALL = './src/icons/ic_select_all.png'
 IC_PUNCH_IN = './src/icons/ic_punch_in.png'
+IC_SHOW_ATTENDENCE = './src/icons/ic_calendar.png'
 
 # NOTIFICATION MESSAGE CUSTOM MSG
 NOTIF_MSG_ATTEND_PREFIX = 'Attend :: '

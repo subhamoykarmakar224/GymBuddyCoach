@@ -147,10 +147,14 @@ def demoInsertGymAdmin():
 
 
 def updateGymAdmin():
-    db.child("GymAdmin") \
-        .child("BodyShapersGym-2932")\
-        .update({"phone": "+919432743720"})
+    # db.child("GymAdmin") \
+    #     .child("BodyShapersGym-2932")\
+    #     .update({"validity": "2020-09-03"})
 
+    db.child("GymAdmin") \
+            .child("BodyShapersGym-2932")\
+            .update({"phone": "+919876543219"})
+    #
 
 def demoInsertStudents():
     data = {
@@ -169,7 +173,21 @@ def demoInsertStudents():
     db.child("Students").child("BGS-002").child(data['SID']).set(data)
 
 
+def uploadAttendenceNotification():
+    data = {
+        'dateTime': "Thu Aug 27 09:30:31 GMT+05:30 2020",
+        'gymId': "BodyShapersGym-2932",
+        'level': "GREEN",
+        'msg': "Student entered the gym.",
+        'studentId': "ID-2932-7e24dabd"
+    }
+
+    db.child('Notification').child("BodyShapersGym-2932").push(data)
+
+
 if __name__ == '__main__':
+    updateGymAdmin()
+    # uploadAttendenceNotification()
     # pass
-    demoInsertStudents()
+    # demoInsertStudents()
     # demoInsertGymAdmin()
