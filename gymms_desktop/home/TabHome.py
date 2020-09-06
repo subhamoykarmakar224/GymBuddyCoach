@@ -5,12 +5,17 @@ import datetime, time, requests
 
 import Configuration as cfg
 import home.SQLTabHome as SQLTabHome
+import home.FBTabHome as FBTabHome
 import home.CustomMessageMgmt as CustomMessageMgmt
 
 
 class TabHome(QWidget):
-    def __init__(self):
+    def __init__(self, tray):
         super(TabHome, self).__init__()
+        self.tray = tray
+        self.threadHome = ThreadLiveHomeTabControl(self.tray)
+        self.threadHome.update_meta_data.connect(self.updateMetaDataDisplay)
+        self.threadHome.start()
 
         adminPhoneNo = ""
         l = []
@@ -119,3 +124,51 @@ class TabHome(QWidget):
             "12": "December"
         }
         return s[0] + " " + m[s[1]] + ", " + s[2]
+
+    def updateMetaDataDisplay(self, f):
+        sql = SQLTabHome.SQLTabHome()
+        if f:
+            with open(cfg.TMP_FILE_URL, "r") as f:
+                l = f.readlines()
+
+            adminPhoneNo = l[0].strip("\n").replace("\r", "")
+            data = sql.getGymAdminInfo(adminPhoneNo)
+            # {'gymId': 'BodyShapersGym-2932', 'gymName': 'Body Shapers Gym', 'adminName': 'Modi',
+            #  'phone': '+919876543219', 'validity': '2020-09-10', 'username': 'mods'}
+            self.lblGymName.setText(data['gymName'])
+            self.lblAdminName.setText(data['adminName'])
+            self.lblAdminPhone.setText(data['phone'])
+            self.lblAdminValidity.setText( self.convertSQLDateFormatToCustom(
+                data['validity']
+            ))
+
+        del sql
+
+
+# LIVE MainWindow Thread SYSTEM
+class ThreadLiveHomeTabControl(QThread):
+    update_meta_data = pyqtSignal(bool)
+
+    def __init__(self, tray):
+        super(ThreadLiveHomeTabControl, self).__init__()
+        self.tray = tray
+
+    def run(self):
+        while True:
+            if self.isConnectedToInternet() != 200:
+                continue
+
+            # print('TabHome().Thread() - Connected to internet!')
+
+            self.update_meta_data.emit(True)
+
+            time.sleep(2)
+
+    # check if connected to the internet
+    def isConnectedToInternet(self):
+        url = 'https://www.google.com/'
+        try:
+            res = requests.get(url, verify=False, timeout=10)
+        except Exception as e:
+            return str(e)
+        return res.status_code

@@ -1,0 +1,43 @@
+<resources>
+
+    <string name="app_name">GYMS</string>
+
+    <!--  Launch Screen  -->
+    <string name="student">Student</string>
+    <string name="loading">loading...</string>
+    <string name="initiated_by">An Initiation by\nSubhamoy Karmakar\nand,\nKanchan Basu</string>
+
+    <!--  Sign In  -->
+    <string name="sign_in">Sign In</string>
+    <string name="otp">OTP Verification</string>
+
+    <string name="calender_desc">This calender shows your attendance.</string>
+    <string name="summary">Summary</string>
+
+    <string name="time_remain">Time Remaining</string>
+
+    <string name="alloted_time">Alloted Time</string>
+    <string name="total_days_present">Total Days Present</string>
+
+    <string name="profile">Profile</string>
+    <string name="student_id">ID</string>
+    <string name="student_name">Name</string>
+    <string name="student_age">Age</string>
+    <string name="membership_validity">Membership Validity Till</string>
+
+    <string name="admob_id">ca-app-pub-6048691519507232~5013528736</string>
+    <string name="admob_adunit_id">ca-app-pub-6048691519507232/5386005779</string>
+    <string name="admob_adunit_id_test">ca-app-pub-3940256099942544/6300978111</string>
+
+    <dimen name="padding_day_of_week">5dp</dimen>
+
+    <string name="about_app">GYMMS or, Gym Management System was conceptualized by Subhamoy Karmakar and Kanchan Basu, with two things in mind. \n1. Centralize and encapsulate the whole gym management system such that owners can have a higher degree of control over their assets through mobile/desktop application.\n2. Accountability.\n\nThe GYMMS package will not only make life much easier but also make the establishment a more secure environment for everyone.
+    </string>
+    <string name="about_subhamoy_name">Subhamoy Karmakar</string>>
+    <string name="about_subhamoy">He is the lead developer and designer, and along with Mr. Kanchan Basu came up
+        with the concept about GYMMS. You can reach him at subhamoykarmakar225@gmail.com.
+    </string>
+    <string name="about_kd_name">Kanchan Basu</string>
+    <string name="about_kd">He along with Subhamoy came with the initial concept of GYMMS. You can reach him at ...  </string>
+
+</resources>

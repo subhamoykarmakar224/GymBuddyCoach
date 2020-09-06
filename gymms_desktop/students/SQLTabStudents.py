@@ -62,6 +62,32 @@ class SQLTabStudents:
             return -1
         return 0
 
+    # insert students to SQL
+    def insertStudentsAlternate(self, students):
+        try:
+            for st in students:
+                s = students[st]
+                q = 'insert into ' + cfg.TABLE_STUDENTS + \
+                    ' (' + cfg.KEY_STUDENTS_SID + ', ' + cfg.KEY_STUDENTS_ALLOTTED_TIME + ', ' + \
+                    cfg.KEY_STUDENTS_MEMBERSHIP + ', ' + cfg.KEY_STUDENTS_PHONE + ', ' + \
+                    cfg.KEY_STUDENTS_AGE + ', ' + cfg.KEY_STUDENTS_NAME + ', ' + \
+                    cfg.KEY_STUDENTS_REG_STATUS + ', ' + cfg.KEY_STUDENTS_DUE + ') values ("' + \
+                    s[cfg.FB_KEY_STUDENTS_SID] + '", "' + s[cfg.FB_KEY_STUDENTS_ALLOTTED_TIME] + '", "' + \
+                    s[cfg.FB_KEY_STUDENTS_MEMBERSHIP] + '", "' + s[cfg.FB_KEY_STUDENTS_PHONE] + '", "' + \
+                    s[cfg.FB_KEY_STUDENTS_AGE] + '", "' + s[cfg.FB_KEY_STUDENTS_NAME] + '", "' + \
+                    s[cfg.FB_KEY_STUDENTS_REG_STATUS] + '", "' + s[cfg.DB_KEY_STUDENTS_DUE] + '")'
+                self.cur.execute(q)
+        except Exception as e:
+            print("SQLAutoSync.insertStudents() :: ERROR1 :: " + str(e))
+            return -1
+
+        try:
+            self.db.commit()
+        except Exception as e:
+            print("SQLAutoSync.insertStudents() :: ERROR2 :: " + str(e))
+            return -1
+        return 0
+
     def updateStudentInfo(self, student):
         q = 'update ' + cfg.TABLE_STUDENTS + \
             ' set ' + cfg.KEY_STUDENTS_ALLOTTED_TIME + '="'+ student[cfg.KEY_STUDENTS_ALLOTTED_TIME] +'", ' + \
@@ -284,6 +310,28 @@ class SQLTabStudents:
             print("SQLTabStudents.getAttendanceForAMonth() :: ERROR :: " + str(e))
 
         return res
+
+    def getFirstInstallFlagStudent(self):
+        q = 'select ' + cfg.KEY_SOFTWARE_FLAG_STATUS + ' from ' + cfg.TABLE_SOFTWARE_FLAG + ' where ' + \
+            cfg.KEY_SOFTWARE_FLAG_NAME + '="' + cfg.CONST_SOFTWARE_FLAG_FIRST_INSTALL_STUDENTS + '"'
+        res = 0
+        try:
+            self.cur.execute(q)
+            res = self.cur.fetchone()
+        except Exception as e:
+            print("SQLTabNotification.getIsAttendencePresent() :: ERROR :: " + str(e))
+
+        return str(res[0])
+
+    def updateFirstInstallFlagStudent(self):
+        q = 'update ' + cfg.TABLE_SOFTWARE_FLAG + ' set ' + cfg.KEY_SOFTWARE_FLAG_STATUS + '="1" where ' + \
+            cfg.KEY_SOFTWARE_FLAG_NAME + '="' + cfg.CONST_SOFTWARE_FLAG_FIRST_INSTALL_STUDENTS + '"'
+        res = 0
+        try:
+            self.cur.execute(q)
+            self.db.commit()
+        except Exception as e:
+            print("SQLTabNotification.getIsAttendencePresent() :: ERROR :: " + str(e))
 
     # check if connected to the internet
     def isConnectedToInternet(self):

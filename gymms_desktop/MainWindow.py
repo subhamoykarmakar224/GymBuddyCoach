@@ -9,6 +9,7 @@ import accesscontrol.LoginScreenSQL as LoginScreenSQL
 import accesscontrol.LoginScreenFB as LoginScreenFB
 import accesscontrol.LoginScreen as loginscreen
 import sync.AutoSync as autosync
+import sync.SQLAutoSync as SQLAutoSync
 import home.TabHome as tabhome
 import students.TabStudent as tabstudent
 import notification.TabNotification as tabontif
@@ -100,8 +101,8 @@ class MainWindowApplication(QMainWindow):
         self.tabsTitle = [
                 "Home", "Students", "Notification", "Settings"
             ]
-        tabGroup = QTabWidget()
-        tabGroup.tabBar().setCursor(Qt.PointingHandCursor)
+        self.tabGroup = QTabWidget()
+        self.tabGroup.tabBar().setCursor(Qt.PointingHandCursor)
 
         # Top Bar
         self.lblUserName = QLabel("Hi! " + self.userData[cfg.KEY_ADMIN_NAME])
@@ -123,13 +124,17 @@ class MainWindowApplication(QMainWindow):
         self.layoutSubTitle.addWidget(self.lblUserName)
         self.layoutSubTitle.addWidget(self.btnLogout)
 
-        tabGroup.addTab(tabhome.TabHome(), self.tabsTitle[0])
-        tabGroup.addTab(tabstudent.TabStudent(), self.tabsTitle[1])
-        tabGroup.addTab(tabontif.TabNotification(self.tray), self.tabsTitle[2])
-        tabGroup.addTab(tabsettings.TabSettings(), self.tabsTitle[3])
+        # self.tabGroup.addTab(tabhome.TabHome(self.tray), self.tabsTitle[0])
+        # self.tabGroup.addTab(tabstudent.TabStudent(self.tray), self.tabsTitle[1])
+        # self.tabGroup.addTab(tabontif.TabNotification(self.tray), self.tabsTitle[2])
+        # self.tabGroup.addTab(tabsettings.TabSettings(), self.tabsTitle[3])
+
+        self.tabGroup.addTab(tabhome.TabHome(self.tray), self.tabsTitle[0])
+        self.tabGroup.addTab(tabstudent.TabStudent(self.tray), self.tabsTitle[1])
+        self.tabGroup.addTab(tabontif.TabNotification(self.tray), self.tabsTitle[2])
 
         vLayout.addLayout(self.layoutSubTitle)
-        vLayout.addWidget(tabGroup)
+        vLayout.addWidget(self.tabGroup)
 
         # setting central widget
         mainVLayoutWidget = QWidget()
@@ -137,15 +142,20 @@ class MainWindowApplication(QMainWindow):
         self.setCentralWidget(mainVLayoutWidget)
 
         self.show()
-        # TODO :: Uncomment later
+
         # self.syncData()
 
     def closeEvent(self, event):
         event.accept()
 
     def syncData(self):
-        syncer = autosync.AutoSync()
-        syncer.exec_()
+        sql = SQLAutoSync.SQLAutoSync()
+        i = str(sql.getFirstInstallStatus())
+
+        if i == '0':
+            syncer = autosync.AutoSync()
+            syncer.exec_()
+
 
     def checkLastUserLoginStatus(self):
         if not os.path.exists(cfg.TMP_FILE_URL):
@@ -276,7 +286,7 @@ class ThreadLiveSoftwareDataControl(QThread):
         gymid = sql.getGymId()
         while True:
             if self.isConnectedToInternet() != 200:
-                print('TabHome().Thread() - Not Connected to internet!')
+                print('TabMain().Thread() - Not Connected to internet!')
                 format = '%Y-%m-%d %H:%M:%S'
                 d = sql.getSoftwareValidityDate()
                 d = datetime.datetime.strptime(d + ' 00:00:01', format)
@@ -288,7 +298,7 @@ class ThreadLiveSoftwareDataControl(QThread):
                 time.sleep(20 * 60)
                 continue
 
-            print('TabHome().Thread() - Connected to internet!')
+            print('TabMain().Thread() - Connected to internet!')
 
             currentTime = sql.getSoftwareValidityDate()
             gymAdminAData = fb.getOnlineValidity(gymid)

@@ -17,6 +17,9 @@ def getAllStudentsData(gymID):
     data = []
     db = getFBDB()
     res = db.child(cfg.FB_TABLE_STUDENTS).child(gymID).get()
+    if res.each() is None:
+        return []
+
     if res.each().__len__() == 0:
         data = []
     else:

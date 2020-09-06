@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorPrimary"
+    android:paddingTop="20dp"
+    tools:context=".NotificationMsg">
+
+    <!-- App header -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:text="Notifications"
+        android:textColor="@android:color/white"
+        android:gravity="center"
+        android:textSize="35sp"
+        android:fontFamily="@font/roboto_thin"
+        />
+
+    <ImageButton
+        android:id="@+id/imgButtonBackToHome"
+        android:layout_width="wrap_content"
+        android:layout_height="80dp"
+        android:background="@android:color/transparent"
+        android:src="@drawable/ic_left"
+        android:padding="20dp"
+        android:layout_alignParentStart="true"
+        />
+
+    <ListView
+        android:paddingRight="10dp"
+        android:paddingLeft="10dp"
+        android:paddingBottom="10dp"
+        android:layout_marginBottom="50dp"
+        android:id = "@+id/listViewNotifications"
+        android:layout_width = "match_parent"
+        android:layout_height = "match_parent"
+        android:layout_below="@id/imgButtonBackToHome"
+        android:divider = "#000000"
+        android:dividerHeight = "20dp"
+        android:footerDividersEnabled = "false"
+        android:headerDividersEnabled = "false"/>
+
+    <com.google.android.gms.ads.AdView
+        xmlns:ads="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/adViewNotif"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentBottom="true"
+        ads:adSize="BANNER"
+        ads:adUnitId="@string/admob_adunit_id_test">
+
+    </com.google.android.gms.ads.AdView>
+
+</RelativeLayout>

@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
-import requests, os, datetime
+import requests, os, datetime, time
 
 import Configuration as cfg
 from Helper import *
@@ -15,9 +15,14 @@ import students.SendNotificationToStudent as SendNotificationToStudent
 import students.PunchInStudent as PunchInStudent
 import students.ShowAttendenceOfStudent as ShowAttendenceOfStudent
 
+
 class TabStudent(QWidget):
-    def __init__(self):
+    def __init__(self, tray):
         super(TabStudent, self).__init__()
+        self.tray = tray
+        self.threadStudent = ThreadLiveStudentSync(self.tray)
+        self.threadStudent.update_student_data.connect(self.updateStudentTableFromThread)
+        self.threadStudent.start()
 
         self.selectedStudent = []
         self.selectAllStatus = False
@@ -173,6 +178,10 @@ class TabStudent(QWidget):
         self.lblClearIcon.mousePressEvent = self.clearSearchTermText
         self.lineEdtSearch.textChanged.connect(self.lineEdtSearchListener)
         self.comboMembershipStatus.currentIndexChanged.connect(self.comboBoxMembershipStatusChanged)
+
+    def updateStudentTableFromThread(self, t):
+        if t:
+            self.refreshStudentsTable()
 
     def refreshStudentsTable(self):
         sqllocal = SQLTabStudents.SQLTabStudents()
@@ -576,3 +585,121 @@ class TabStudent(QWidget):
         inFormat = '%d %B, %Y'
         s = datetime.datetime.strptime(s, sqlFormat).strftime(inFormat)
         return s
+
+
+# LIVE NOTIFICATION SYSTEM
+class ThreadLiveStudentSync(QThread):
+    update_student_data = pyqtSignal(bool)
+
+    def __init__(self, tray):
+        super(ThreadLiveStudentSync, self).__init__()
+        self.tray = tray
+
+    def run(self):
+        fb = FBTabStudents
+        sql = SQLTabStudents.SQLTabStudents()
+        gymid = sql.getGymId()
+        while True:
+            if self.isConnectedToInternet() != 200:
+                print('TabStudent().Thread() - Not Connected to internet!')
+                time.sleep(60)
+                continue
+
+            print('TabStudent().Thread() - Connected to internet!')
+            data = fb.getAllStudentsData(gymid)
+            localStudent = sql.getAllStudents()
+
+            fbStudents = {}
+            sqlStudents = {}
+
+            for d in data:
+                fbStudents[d[cfg.FB_KEY_STUDENTS_SID]] = d
+
+            for s in localStudent:
+                sqlStudents[s[0]] = s
+
+            del data
+            del localStudent
+
+            resFirstInstall = sql.getFirstInstallFlagStudent()
+            if resFirstInstall == "0":
+                r = sql.insertStudentsAlternate(fbStudents)
+                if r == 0:
+                    sql.updateFirstInstallFlagStudent()
+            else:
+                # Delete from FB
+                if sqlStudents.keys().__len__() < fbStudents.keys().__len__():
+                    for id in fbStudents.keys():
+                        if id not in sqlStudents.keys():
+                            fb.deleteStudent(id)
+
+                # Insert into FB
+                if sqlStudents.keys().__len__() > fbStudents.keys().__len__():
+                    for id in sqlStudents.keys():
+                        if id not in fbStudents.keys():
+                            tmpS = sqlStudents[id]
+                            student = {
+                                cfg.KEY_STUDENTS_SID: id,
+                                cfg.KEY_STUDENTS_ALLOTTED_TIME: tmpS[1],
+                                cfg.KEY_STUDENTS_MEMBERSHIP: tmpS[2],
+                                cfg.KEY_STUDENTS_PHONE: tmpS[3],
+                                cfg.KEY_STUDENTS_AGE: tmpS[4],
+                                cfg.KEY_STUDENTS_NAME: tmpS[5],
+                                cfg.KEY_STUDENTS_REG_STATUS: tmpS[6],
+                                cfg.KEY_STUDENTS_DUE: tmpS[7]
+                            }
+                            fb.insertStudents(student)
+                            del student
+
+                # Validate All data
+                for id in sqlStudents.keys():
+                    tmpFB = fbStudents[id]
+                    tmpSQL = sqlStudents[id]
+                    status = True
+                    if status and tmpFB[cfg.FB_KEY_STUDENTS_ALLOTTED_TIME] != tmpSQL[1]:
+                        status = False
+
+                    if status and tmpFB[cfg.FB_KEY_STUDENTS_MEMBERSHIP] != tmpSQL[2]:
+                        status = False
+
+                    if status and tmpFB[cfg.FB_KEY_STUDENTS_PHONE] != tmpSQL[3]:
+                        status = False
+
+                    if status and tmpFB[cfg.FB_KEY_STUDENTS_AGE] != tmpSQL[4]:
+                        status = False
+
+                    if status and tmpFB[cfg.FB_KEY_STUDENTS_NAME] != tmpSQL[5]:
+                        status = False
+
+                    if status and tmpFB[cfg.FB_KEY_STUDENTS_REG_STATUS] != tmpSQL[6]:
+                        status = False
+
+                    if status and tmpFB[cfg.DB_KEY_STUDENTS_DUE] != tmpSQL[7]:
+                        status = False
+
+                    if not status:
+                        student = {
+                            cfg.KEY_STUDENTS_SID: id,
+                            cfg.KEY_STUDENTS_ALLOTTED_TIME: tmpSQL[1],
+                            cfg.KEY_STUDENTS_MEMBERSHIP: tmpSQL[2],
+                            cfg.KEY_STUDENTS_PHONE: tmpSQL[3],
+                            cfg.KEY_STUDENTS_AGE: tmpSQL[4],
+                            cfg.KEY_STUDENTS_NAME: tmpSQL[5],
+                            cfg.KEY_STUDENTS_REG_STATUS: tmpSQL[6],
+                            cfg.KEY_STUDENTS_DUE: tmpSQL[7]
+                        }
+                        fb.updateStudents(student)
+                        del student
+
+            self.update_student_data.emit(True)
+
+            time.sleep(60 * 60)
+
+    # check if connected to the internet
+    def isConnectedToInternet(self):
+        url = 'https://www.google.com/'
+        try:
+            res = requests.get(url, verify=False, timeout=10)
+        except Exception as e:
+            return str(e)
+        return res.status_code

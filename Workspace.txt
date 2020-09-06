@@ -83,3 +83,47 @@ studentId: "ID-2932-1"
 "2020-08-27 14:05:26.852744"
 to,
 Thu Aug 27 09:30:31 GMT+05:30 2020
+
+
+-------------------------------------------
+{'SID': 'ID-2932-43c27ce7', 'allotedtime': '08:00 AM to 10:00 AM', 'dueamount': '0', 'membershipvalidity': '2020-09-11', 'phone': '+919876498745', 'regstatus': '1', 'studentage': '1990-08-09', 'studentname': 'Test tt'}
+
+('ID-2932-43c27ce7', 
+1: '08:00 AM to 10:00 AM', 2: '2020-09-11', 3: '+919876498745', 
+4:'1990-08-09', 5:'Test tt', 6:'1', 7:'0')
+-------------------------------------------
+STUDENTS - 
+[
+{'SID': 'ID-2932-43c27ce7', 'allotedtime': '08:00 AM to 10:00 AM', 'dueamount': '0', 'membershipvalidity': '2020-09-11', 'phone': '+919876498745', 'regstatus': '1', 'studentage': '1990-08-09', 'studentname': 'Test tt'}, 
+
+{'SID': 'ID-2932-5d8d6b34', 'allotedtime': '04:00 PM to 06:00 PM', 'dueamount': '0', 'membershipvalidity': '2020-06-10', 'phone': '+913216549874', 'regstatus': '1', 'studentage': '1980-11-13', 'studentname': 'Test 1 '}, 
+
+{'SID': 'ID-2932-7e24dabd', 'allotedtime': '12:00 AM to 11:59 PM', 'dueamount': '0', 'membershipvalidity': '2020-10-17', 'phone': '+919432743720', 'regstatus': '0', 'studentage': '1991-10-16', 'studentname': 'Subhamoy Karmakar'}, 
+
+{'SID': 'ID-2932-da96eb71', 'allotedtime': '04:00 PM to 05:30 PM', 'dueamount': '800', 'membershipvalidity': '2020-09-10', 'phone': '+916549873210', 'regstatus': '1', 'studentage': '1976-03-04', 'studentname': 'Elon TRON Musk'}]
+
+
+
+NOTIFICATION -
+{'dateTime': 'Sat Aug 22 20:47:32 GMT+05:30 2020', 'gymId': 'BodyShapersGym-2932', 'level': 'GREEN', 'msg': 'Student entered the gym.', 'studentId': 'ID-2932-7e24dabd'}, 
+
+ATTENDENCE -
+{
+'ID-2932-5d8d6b34': {
+	'27-08-2020': {'datestamp': '27-08-2020', 'timeStmp': '16:43:00'}
+}, 
+'ID-2932-7e24dabd': {
+	'01-08-2020': {'datestamp': '01-08-2020', 'timeStmp': '16:06:00'}, 
+	'04-08-2020': {'datestamp': '04-08-2020', 'timeStmp': '12:31:00'}, 
+	'04-09-2020': {'datestamp': '04-09-2020', 'timeStmp': '21:52:00'}, 
+	'19-08-2020': {'datestamp': '19-08-2020', 'timeStmp': '18:04:56'}, 
+	'22-08-2020': {'datestamp': '22-08-2020', 'timeStmp': '20:47:32'}, 
+	'25-08-2020': {'datestamp': '25-08-2020', 'timeStmp': '16:58:00'}, 
+	'26-08-2020': {'datestamp': '26-08-2020', 'timeStmp': '21:32:32'}, 
+	'27-08-2020': {'datestamp': '27-08-2020', 'timeStmp': '23:28:00'}
+}, 
+'ID-2932-da96eb71': {
+	'27-08-2020': {'datestamp': '27-08-2020', 'timeStmp': '16:43:00'}
+}
+}
+

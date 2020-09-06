@@ -99,7 +99,7 @@ class LoginScreen(QDialog):
             self.fillComboBox()
 
         #todo : delete later
-        self.idField.setText("9876543210")
+        self.idField.setText("9876543219")
         self.passField.setText("1234")
         self.comboGymIds.setCurrentIndex(1)
 

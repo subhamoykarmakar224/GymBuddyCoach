@@ -1,12 +1,14 @@
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
-import Configuration as cfg
 import requests, time, os
+
 from CustomMessageBox import *
+import Configuration as cfg
 import sync.FBAutoSync as FBAutoSync
 import sync.SQLAutoSync as SQLAutoSync
 import sync.CompareStudentsData as CompareStudentsData
+import home.SQLTabHome as SQLTabHome
 
 
 class AutoSync(QDialog):
@@ -144,44 +146,64 @@ class ThreadProgressBarShow(QThread):
     sql = SQLAutoSync.SQLAutoSync()
 
     def run(self):
-        cnt = 0
-        self.lbl_msg.emit("Syncing Admin table...")
-        # self.checkGymAdminData()
-        self.change_val.emit(30)
-        self.lbl_msg.emit("Syncing Students table...")
-        self.checkStudentsData()
-        self.change_val.emit(60)
-        self.lbl_msg.emit("Syncing Notifications table...")
-        # self.checkNotificationData()
+        students = {}
+        notifs = {}
+        attend = {}
+        sql = SQLTabHome.SQLTabHome()
+        gymid = sql.getGymId()
+        del sql
+
+        sql = SQLAutoSync.SQLAutoSync()
+
+        fb = FBAutoSync.FBAutoSync()
+
+        if self.isConnectedToInternet() == 200:
+            students = fb.getAllStudentsData(gymid)
+        else:
+            return
+
+        if self.isConnectedToInternet() == 200:
+            notifs = fb.getAllNotificationData(gymid)
+        else:
+            return
+
+        if self.isConnectedToInternet() == 200:
+            attend = fb.getAllAttendenceData(gymid)
+        else:
+            return
+
+        totalDateCount = len(students) + len(notifs) + len(attend)
+
+        if totalDateCount != 0:
+            self.lbl_msg.emit("Syncing Students...")
+            if students.__len__() != 0:
+                sql.insertStudents(students)
+            self.change_val.emit(30)
+
+            self.lbl_msg.emit("Syncing Notifications...")
+            if notifs.__len__() != 0:
+                sql.insertNotifications(notifs)
+
+            self.change_val.emit(60)
+
+            self.lbl_msg.emit("Syncing Attendance...")
+            if attend.__len__() != 0:
+                for sid in attend.keys():
+                    dates = attend[sid]
+                    sql.insertAttendence(sid, dates)
+
         self.change_val.emit(90)
         self.lbl_msg.emit("Done.")
+        sql.updateSoftwareFirstInstallFlag(cfg.CONST_SOFTWARE_FLAG_FIRST_INSTALL_STUDENTS, "1")
+
         self.change_val.emit(100)
         self.thread_done.emit(True)
 
-    def checkGymAdminData(self):
-        if not os.path.exists(cfg.TMP_FILE_URL):
-            return False
-
-        f = open(cfg.TMP_FILE_URL, "r")
-        ph = f.read().strip("\n")
-
-    def checkStudentsData(self):
-        if not os.path.exists(cfg.TMP_FILE_URL):
-            return False
-
-        f = open(cfg.TMP_FILE_URL, "r")
-        ph = f.read().strip("\n")
-
-        gymId = self.sql.getGymID()
-
-        dataFBStudents = self.fb.getAllStudentsData(gymId)
-        compareStudents = CompareStudentsData.CompareStudentsData(dataFBStudents)
-        compareStudents.compareData()
-
-    def checkNotificationData(self):
-        if not os.path.exists(cfg.TMP_FILE_URL):
-            return False
-
-        f = open(cfg.TMP_FILE_URL, "r")
-        ph = f.read().strip("\n")
-
+    # check if connected to the internet
+    def isConnectedToInternet(self):
+        url = 'https://www.google.com/'
+        try:
+            res = requests.get(url, verify=False, timeout=10)
+        except Exception as e:
+            return str(e)
+        return res.status_code

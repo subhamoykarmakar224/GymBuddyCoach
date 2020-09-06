@@ -5,6 +5,8 @@ describe notification;
 
 describe gymadmin;
 select * from gymadmin;
+update GymAdmin set passwd=sha('1234');
+update GymAdmin set validity= STR_TO_DATE("2020-08-27", "%d-%m-%Y");
 -- insert into gymadmin values("BodyShapers-9876", "Body Shapers Gymnasium", "Kanchan Basu", "9432743720", "31-12-2020", "kbasu", SHA1("1234"), "0");
 -- delete from gymadmin where loginstatus="0";
 
@@ -50,16 +52,16 @@ STR_TO_DATE("25-08-2020", '%d-%m-%Y'),
 select studentname from Students where SID="ID-2932-1";
 select *from students;
 
-select count(*) from notification;
+select * from notification;
 select *from notification where datestamp = curdate() and timeStmp <= TIME('17:00:00') and level=upper('red');
 select *from notification where datestamp < now() - interval 20 DAY;
 
-select *from Attendence;
+select *from Attendence;studentsstudentssoftwareflagssoftwareflags
 select *from Attendence where datestamp='2020-08-22';
 update Attendence set uploadstatus="0" where uploadstatus="1";
 select distinct SID from Attendence where uploadstatus="0";
 
-select * from Attendence 
+select * from Attendence
 where SID="ID-2932-7e24dabd" 
 and datestamp >= STR_TO_DATE("2020-08-01", "%d-%m-%Y") 
 and datestamp <= STR_TO_DATE("2020-08-31", "%d-%m-%Y");
@@ -67,6 +69,8 @@ and datestamp <= STR_TO_DATE("2020-08-31", "%d-%m-%Y");
 select * from Attendence 
 where SID="ID-2932-7e24dabd" 
 and datestamp like "2020-08-%" order by datestamp asc;
+
+select * from softwareflags;
 
 
 delete from attendence where datestamp="2020-08-27";

@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_below="@+id/layoutCalender"
+    android:layout_marginStart="20dp"
+    android:layout_marginTop="30dp"
+    android:layout_marginEnd="20dp"
+    android:background="@drawable/bg_calender"
+    android:orientation="vertical">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="20dp">
+
+        <TextView
+            android:id="@+id/summaryHeading"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:text="@string/summary"
+            android:textColor="@android:color/black" />
+
+        <ImageButton
+            android:id="@+id/btnResetCalenderView"
+            style="@style/Widget.MaterialComponents.FloatingActionButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:background="@android:color/transparent"
+            android:src="@drawable/ic_refresh"
+            android:tint="@android:color/darker_gray" />
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="10dp"
+        android:paddingStart="20dp"
+        android:paddingEnd="20dp"
+        android:paddingBottom="20dp">
+
+        <TextView
+            android:id="@+id/textViewAllotedTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/alloted_time"
+            android:textColor="@android:color/black" />
+
+        <TextView
+            android:id="@+id/textViewAllottedTimeValue"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="8:00 AM to 10:00 AM"
+            android:layout_alignParentEnd="true"
+            android:textColor="@color/colorPrimary"
+            />
+
+        <TextView
+            android:id="@+id/textViewNoOfDaysPresent"
+            android:layout_width="wrap_content"
+            android:layout_below="@+id/textViewAllotedTime"
+            android:layout_height="wrap_content"
+            android:paddingTop="10dp"
+            android:text="@string/total_days_present"
+            android:textColor="@android:color/black" />
+
+        <TextView
+            android:id="@+id/textViewNoOfDaysPresentValue"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="0 days"
+            android:layout_alignParentEnd="true"
+            android:layout_below="@id/textViewAllottedTimeValue"
+            android:textColor="@color/darkGreen"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
+            />
+
+    </RelativeLayout>
+
+</LinearLayout>

@@ -55,8 +55,7 @@ status int
 create table msgnotif(
 msgcounter int primary key,
 SID varchar(100),
-message text,
-foreign key (SID) references Students(SID)
+message text
 );
 
 create table CustomMessage(

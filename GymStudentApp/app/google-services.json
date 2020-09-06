@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "935818798882",
+    "firebase_url": "https://gymbuddyall.firebaseio.com",
+    "project_id": "gymbuddyall",
+    "storage_bucket": "gymbuddyall.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:935818798882:android:9a21b89c63218089db277b",
+        "android_client_info": {
+          "package_name": "com.subhamoy.gymstudentapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "935818798882-002498kem0fa8131hau42183lmepcbtc.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.subhamoy.gymstudentapp",
+            "certificate_hash": "f6fd4093edeb48104fac9bde8946bbcc90d05198"
+          }
+        },
+        {
+          "client_id": "935818798882-lu5pn3nnj3dgbdtetgpqatfn5v8a5jkr.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBjw822k4aZUQcI_rBxTI5kwjb4ymlEuA4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "935818798882-lu5pn3nnj3dgbdtetgpqatfn5v8a5jkr.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

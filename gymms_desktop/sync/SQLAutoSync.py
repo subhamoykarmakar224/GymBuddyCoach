@@ -144,6 +144,43 @@ class SQLAutoSync():
             return -1
         return 0
 
+    # insert notification to SQL
+    def insertNotifications(self, notifs):
+        try:
+            for s in notifs:
+                tmpdate, tmptime = self.convertToCustomDateTimeFormat(s[cfg.FB_KEY_NOTIFICATION_DATETIME])
+                q = 'insert into ' + cfg.TABLE_NOTIFICATION + \
+                    ' (' + cfg.KEY_NOTIFICATION_NID + ', ' + cfg.KEY_NOTIFICATION_SID + ', ' + \
+                    cfg.KEY_NOTIFICATION_DATETIME + ', ' + cfg.KEY_NOTIFICATION_DATE + ', ' + \
+                    cfg.KEY_NOTIFICATION_TIME + ', ' + cfg.KEY_NOTIFICATION_LEVEL + ', ' + \
+                    cfg.KEY_NOTIFICATION_MSG + ') values ("' + \
+                    s[cfg.FB_KEY_NOTIFICATION_NID] + '", "' + s[cfg.FB_KEY_NOTIFICATION_SID] + '", "' + \
+                    s[cfg.FB_KEY_NOTIFICATION_DATETIME] + '", STR_TO_DATE("' + tmpdate + '", "%d-%m-%Y"), "' + \
+                    tmptime + '", "' + s[cfg.FB_KEY_NOTIFICATION_LEVEL] + '", "' + \
+                    s[cfg.FB_KEY_NOTIFICATION_MSG] + '")'
+                self.cur.execute(q)
+        except Exception as e:
+            print("SQLAutoSync.insertNotifications() :: ERROR1 :: " + str(e))
+            return -1
+
+        try:
+            self.db.commit()
+        except Exception as e:
+            print("SQLAutoSync.insertStudents() :: ERROR2 :: " + str(e))
+            return -1
+        return 0
+
+    def convertToCustomDateTimeFormat(self, d):
+        resDate = ''
+        d = d.split(" ")
+        months = {
+            'Jan': '01', 'Feb': '02', 'Mar': '03', 'Apr': '04',
+            'May': '05', 'Jun': '06', 'Jul': '07', 'Aug': '08',
+            'Sep': '09', 'Oct': '10', 'Nov': '11', 'Dec': '12'
+        }
+        resDate = d[2] + "-" + months[d[1]] + "-" + d[-1]
+        return resDate, d[3]
+
     # updates software registry flags
     def updateSoftwareFirstInstallFlag(self, flag, status):
         query = 'update softwareflags set status=' + str(status) + ' where flagname="' + flag + '"'
@@ -164,3 +201,15 @@ class SQLAutoSync():
             print("SQLAutoSync.getAdminGymId() :: ERROR :: " + str(e))
 
         return res
+
+    def insertAttendence(self, sid, attend):
+        for d in attend.keys():
+            t = attend[d][cfg.FB_KEY_ATTENDENCE_TIME]
+            q = 'insert into ' + cfg.TABLE_ATTENDENCE + ' values ("'+sid+'", STR_TO_DATE("' + \
+                d + '", "%d-%m-%Y"), "' + t + '", 1")'
+            try:
+                self.cur.execute(q)
+            except Exception as e:
+                print("SQLAutoSync.insertAttendence() :: ERROR :: " + str(e))
+
+            self.db.commit()
