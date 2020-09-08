@@ -151,13 +151,16 @@ def updateGymAdmin():
     #     .child("BodyShapersGym-2932")\
     #     .update({"validity": "2020-09-11"})
     #
-    db.child("GymAdmin") \
-            .child("BodyShapersGym-2932")\
-            .update({"phone": "+919432743720"})
+    # db.child("GymAdmin") \
+    #         .child("BodyShapersGym-2932")\
+    #         .update({"phone": "+919432743720"})
     # #
     # db.child("GymAdmin") \
     #         .child("BodyShapersGym-2932")\
     #         .update({"passwd": "7110eda4d09e062aa5e4a390b0a572ac0d2c0220"})
+    db.child("GymAdmin") \
+            .child("BodyShapersGym-2932")\
+            .update({"cdkey": "e9c3ae07a92949ce85fb"})
 
 
 def demoInsertStudents():
